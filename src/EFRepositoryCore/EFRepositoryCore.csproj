@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.4</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageId>Mindfire.EFRepositoryCore</PackageId>
+    <Version>1.0.0-alpha</Version>
+    <Authors>Nate Zaugg</Authors>
+    <Company>Mindfire Technology</Company>
+    <Description>EFRepository allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</Description>
+    <Copyright>2017</Copyright>
+    <PackageProjectUrl>https://github.com/MindfireTechnology/EFRepository</PackageProjectUrl>
+    <PackageIconUrl>https://avatars3.githubusercontent.com/u/13372702?v=3&amp;s=200</PackageIconUrl>
+    <RepositoryUrl>https://github.com/MindfireTechnology/EFRepository</RepositoryUrl>
+    <PackageTags>EF, EntityFramework, Entity Framework, Core, NetStandard, Repository Pattern</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Repository2.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\EFRepository\IRepository.cs" Link="IRepository.cs" />
+    <Compile Include="..\EFRepository\Repository.cs" Link="Repository.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.1" />
+  </ItemGroup>
+
+</Project>
