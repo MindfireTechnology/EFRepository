@@ -1,18 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Entity;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
+
+#if NETSTANDARD1_4
+using Microsoft.EntityFrameworkCore;
+#else
+using System.Data.Entity;
+#endif
 
 namespace EFRepository
 {
 	public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
 	{
 		protected DbContext DataContext;
-		protected IDbSet<TEntity> InternalSet;
+		protected DbSet<TEntity> InternalSet;
 		protected PropertyInfo[] KeyProperties;
 		protected MethodInfo DefaultMethod;
 		protected bool OwnsDataContext;
@@ -95,6 +101,7 @@ namespace EFRepository
 			}
 		}
 
+#if DOTNETFULL
 		public virtual int Execute(string sql, IEnumerable<object> parameters)
 		{
 			return DataContext.Database.ExecuteSqlCommand(sql, parameters);
@@ -104,6 +111,7 @@ namespace EFRepository
 		{
 			return DataContext.Database.SqlQuery<TEntity>(sql, parameters.ToArray());
 		}
+#endif
 
 		public virtual int Save()
 		{
@@ -136,7 +144,7 @@ namespace EFRepository
 		{
 			// Get properties of the Entity and look for the key(s)
 			var keys = new List<PropertyInfo>();
-			foreach (var prop in typeof(TEntity).GetProperties())
+			foreach (var prop in typeof(TEntity).GetRuntimeProperties())
 			{
 				if (prop.GetCustomAttribute<KeyAttribute>(true) != null ||
 					prop.Name.Equals("ID", StringComparison.CurrentCultureIgnoreCase) ||
@@ -147,15 +155,19 @@ namespace EFRepository
 			}
 
 			KeyProperties = keys.ToArray();
-			DefaultMethod = GetType().GetMethod("Default");
+			DefaultMethod = GetType().GetRuntimeMethod("Default", null);
 		}
 
 		protected virtual void SetupEntityProperty()
 		{
 			// Look for the type 
-			foreach (var prop in DataContext.GetType().GetProperties())
+			foreach (var prop in DataContext.GetType().GetRuntimeProperties())
 			{
+#if NETSTANDARD1_4
+				if (prop.PropertyType == typeof(DbSet<TEntity>))
+#else
 				if (prop.PropertyType == typeof(DbSet<TEntity>) || prop.PropertyType == typeof(IDbSet<TEntity>))
+#endif
 				{
 					Entity = (DbSet<TEntity>)prop.GetValue(DataContext);
 					InternalSet = (DbSet<TEntity>)prop.GetValue(DataContext);
