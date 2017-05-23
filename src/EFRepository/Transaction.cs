@@ -4,31 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
-using Tran = System.Transactions.Transaction;
 
 namespace EFRepository
 {
+	/// <summary>
+	/// A wrapper for TransactionScope that provides a simple abstraction allowing for the 
+	/// most important parameters to be passed in more easily and ignoring parameters that
+	/// exist only for backward compatability.
+	/// </summary>
 	public class ScopedTransaction : IDisposable
 	{
 		protected TransactionScope Transaction;
-
-
-		public IsolationLevel Isolation { get; protected set; }
 
 		public ScopedTransaction()
 		{
 			Transaction = new TransactionScope(TransactionScopeOption.Required, 
 				new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
 				TransactionScopeAsyncFlowOption.Enabled);
-
-			Isolation = IsolationLevel.ReadCommitted;
-
-			TransactionManager.DistributedTransactionStarted += TransactionManager_DistributedTransactionStarted;
-		}
-
-		private void TransactionManager_DistributedTransactionStarted(object sender, TransactionEventArgs e)
-		{
-			throw new NotImplementedException();
 		}
 
 		public ScopedTransaction(IsolationLevel isolation)
@@ -36,31 +28,60 @@ namespace EFRepository
 			Transaction = new TransactionScope(TransactionScopeOption.Required, 
 				new TransactionOptions { IsolationLevel = isolation },
 				TransactionScopeAsyncFlowOption.Enabled);
-
-			Isolation = isolation;
 		}
 
 		public ScopedTransaction(IsolationLevel isolation, TransactionScopeOption scopeOption)
 		{
-			Transaction = new TransactionScope(scopeOption, new TransactionOptions { IsolationLevel = isolation });
-			Isolation = isolation;
-			// TODO: Finish Me!
+			Transaction = new TransactionScope(scopeOption, 
+				new TransactionOptions { IsolationLevel = isolation },
+				TransactionScopeAsyncFlowOption.Enabled);
 		}
 
+		public ScopedTransaction(IsolationLevel isolation, TransactionScopeOption scopeOption, TimeSpan scopeTimeout)
+		{
+			Transaction = new TransactionScope(scopeOption,
+				new TransactionOptions { IsolationLevel = isolation, Timeout = scopeTimeout },
+				TransactionScopeAsyncFlowOption.Enabled);
+		}
 
-		// Want Transaction transacitonToUse
-		// Want Timeout
-		// 
-		/*
-		public ScopedTransaction(Transaction transactionToUse);
-		public ScopedTransaction(TransactionScopeOption scopeOption, TimeSpan scopeTimeout);
-		//public ScopedTransaction(TransactionScopeOption scopeOption, TransactionOptions transactionOptions);
-		public ScopedTransaction(Transaction transactionToUse, TimeSpan scopeTimeout);
-		//public ScopedTransaction(TransactionScopeOption scopeOption, TransactionOptions transactionOptions, TransactionScopeAsyncFlowOption asyncFlowOption);
-		//public ScopedTransaction(TransactionScopeOption scopeOption, TransactionOptions transactionOptions, EnterpriseServicesInteropOption interopOption);
-		public ScopedTransaction(Transaction transactionToUse, TimeSpan scopeTimeout, TransactionScopeAsyncFlowOption asyncFlowOption);
-		public ScopedTransaction(Transaction transactionToUse, TimeSpan scopeTimeout, EnterpriseServicesInteropOption interopOption);
-	*/
+		public ScopedTransaction(Transaction transactionToUse)
+		{
+			Transaction = new TransactionScope(transactionToUse,
+				TransactionScopeAsyncFlowOption.Enabled);
+		}
+
+		public ScopedTransaction(Transaction transactionToUse, TransactionScopeOption scopeOption)
+		{
+			Transaction = new TransactionScope(transactionToUse,
+				TransactionScopeAsyncFlowOption.Enabled);
+		}
+
+		public ScopedTransaction(Transaction transactionToUse, TransactionScopeOption scopeOption, TimeSpan scopeTimeout)
+		{
+			Transaction = new TransactionScope(transactionToUse,
+				scopeTimeout,
+				TransactionScopeAsyncFlowOption.Enabled);
+		}
+
+		public void Commit()
+		{
+			Transaction.Complete();
+		}
+
+		public void Rollback()
+		{
+			Transaction.Dispose();
+			Transaction = null;
+		}
+
+		public void Dispose()
+		{
+			if (Transaction != null)
+			{
+				Transaction.Dispose();
+				Transaction = null;
+			}
+		}
 
 		protected int GetTransactionCardinality(IsolationLevel level)
 		{
@@ -82,27 +103,6 @@ namespace EFRepository
 					return 5;
 				default:
 					return 0;
-			}
-		}
-
-
-		public void Commit()
-		{
-			Transaction.Complete();
-		}
-
-		public void Rollback()
-		{
-			Transaction.Dispose();
-			Transaction = null;
-		}
-
-		public void Dispose()
-		{
-			if (Transaction != null)
-			{
-				Transaction.Dispose();
-				Transaction = null;
 			}
 		}
 

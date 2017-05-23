@@ -82,12 +82,23 @@ namespace UnitTests
 		}
 
 		[TestMethod]
+		public void KeyDelete()
+		{
+			var context = new DashboardDataContext();
+			IRepository<User> userRepo = new Repository<User>(context);
+
+			userRepo.Delete(10);
+
+			userRepo.Save();
+		}
+
+
+		[TestMethod]
 		public void DetachedUpdate()
 		{
 			var context = new DashboardDataContext();
 			IRepository<User> userRepo = new Repository<User>(context);
 
-			// TODO: What if hte database doesn't generate the keys for us?
 			var user = new User
 			{
 				ID = 4,
@@ -101,20 +112,26 @@ namespace UnitTests
 		}
 
 		[TestMethod]
-		public void AbandonTest()
+		public void DetachedUpdateWithExistingEntity()
 		{
 			var context = new DashboardDataContext();
 			IRepository<User> userRepo = new Repository<User>(context);
 
-			var user = userRepo.Entity.Where(n => n.FirstName == "Nate").FirstOrDefault();
-			user.LastName = "Zaugg-Abaondoned!";
+			userRepo.Entity.ToList(); // Load everything!
+			
+			var user = new User
+			{
+				ID = 4,
+				FirstName = "Nate-Updated",
+				LastName = "Zaugg-Updated",
+			};
 
 			userRepo.AddOrUpdate(user);
 
-			userRepo.AbandonChanges();
-
-			userRepo.Save();
+			Assert.AreEqual(1, userRepo.Save());
 		}
+
+
 
 		[TestMethod]
 		public void SimpleIDKeyAttributeMissingQuery()

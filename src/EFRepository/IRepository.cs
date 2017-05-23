@@ -67,9 +67,6 @@ namespace EFRepository
 		/// <returns>Number of affected entities</returns>
 		Task<int> SaveAsync(CancellationToken cancellationToken);
 
-		/// <summary>Remove any staged changes from the Repository</summary>
-		void AbandonChanges();
-
 		/// <summary>Event that fires when an item is added</summary>
 		event Action<TEntity> ItemAdded;
 

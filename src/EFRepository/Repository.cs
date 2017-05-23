@@ -5,12 +5,14 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Diagnostics;
+using System.ComponentModel;
 
-#if NETSTANDARD1_4
-using Microsoft.EntityFrameworkCore;
-#else
+#if DOTNETFULL
+using System.Data.Entity.Infrastructure;
 using System.Data.Entity;
+#else
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 #endif
 
 namespace EFRepository
@@ -20,20 +22,26 @@ namespace EFRepository
 		protected DbContext DataContext;
 		protected DbSet<TEntity> InternalSet;
 		protected PropertyInfo[] KeyProperties;
-		protected MethodInfo DefaultMethod;
 		protected bool OwnsDataContext;
 
 		public event Action<TEntity> ItemAdded;
 		public event Action<TEntity> ItemModified;
 		public event Action<TEntity> ItemDeleted;
 
-		public virtual IQueryable<TEntity> Entity { get; protected set; }
+		public virtual IQueryable<TEntity> Entity { get => InternalSet; }
 
 		public Repository(DbContext context, bool ownsDataContext = true)
 		{
 			DataContext = context ?? throw new ArgumentNullException(nameof(context));
+#if DOTNETFULL
+			DataContext.Configuration.AutoDetectChangesEnabled = false;
+			DataContext.Configuration.ProxyCreationEnabled = false;
+#else
+			DataContext.ChangeTracker.AutoDetectChangesEnabled = false;
+			DataContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+#endif
 			OwnsDataContext = ownsDataContext;
-			SetupEntityProperty();
+			InternalSet = DataContext.Set<TEntity>();
 			SetupKeyProperty();
 		}
 
@@ -44,15 +52,12 @@ namespace EFRepository
 
 		public virtual void AddOrUpdate(params TEntity[] values)
 		{
-			AddOrUpdate(values);
+			AddOrUpdate(values.AsEnumerable());
 		}
 
 		public virtual void AddOrUpdate(IEnumerable<TEntity> collection)
 		{
-			if (collection == null)
-				throw new ArgumentNullException(nameof(collection));
-
-			foreach (var entity in collection)
+			foreach (var entity in collection ?? throw new ArgumentNullException(nameof(collection)))
 			{
 				// Check to see if this is a new entity (by checking the key)
 				if (IsNew(entity))
@@ -63,16 +68,18 @@ namespace EFRepository
 				else
 				{
 					// Is this entity already attached?
-					var entry = DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
+					var entry = GetEntryByKey(entity);
 					if (entry == null)
 					{
-						// BUG: Entity exists but is not the one they saved here...
-						InternalSet.Add(entity);
-						entry = DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
+						InternalSet.Attach(entity);
+						entry = DataContext.Entry(entity);
+					}
+					else if (entry.Entity.GetHashCode() != entity.GetHashCode()) // Objects are NOT the same!
+					{
+						throw new NotSupportedException("A different entity object with the same key already exists in the ChangeTracker");
 					}
 					
 					entry.State = EntityState.Modified;
-
 					ItemModified?.Invoke(entity);
 				}
 			}
@@ -80,8 +87,12 @@ namespace EFRepository
 
 		public virtual void Delete(params object[] keys)
 		{
-			TEntity value = Find(keys);
-			InternalSet.Remove(value);
+			TEntity value = CreateKeyEntity(keys);
+
+			InternalSet.Attach(value);
+			var entry = GetEntryByKey(value);
+			entry.State = EntityState.Deleted;
+
 			ItemDeleted?.Invoke(value);
 		}
 
@@ -101,20 +112,9 @@ namespace EFRepository
 			}
 		}
 
-#if DOTNETFULL
-		public virtual int Execute(string sql, IEnumerable<object> parameters)
-		{
-			return DataContext.Database.ExecuteSqlCommand(sql, parameters);
-		}
-
-		public virtual IEnumerable<TEntity> Query(string sql, IEnumerable<object> parameters)
-		{
-			return DataContext.Database.SqlQuery<TEntity>(sql, parameters.ToArray());
-		}
-#endif
-
 		public virtual int Save()
 		{
+			// Do we need to call DetechChanges?
 			return DataContext.SaveChanges();
 		}
 
@@ -126,12 +126,6 @@ namespace EFRepository
 		public Task<int> SaveAsync(CancellationToken cancellationToken)
 		{
 			return DataContext.SaveChangesAsync(cancellationToken);
-		}
-
-		public void AbandonChanges()
-		{
-			// TODO: Actually remove the records from the context.
-			DataContext.ChangeTracker.Entries().ToList().ForEach(n => n.State = EntityState.Unchanged);
 		}
 
 		public virtual void Dispose()
@@ -155,27 +149,29 @@ namespace EFRepository
 			}
 
 			KeyProperties = keys.ToArray();
-			DefaultMethod = GetType().GetRuntimeMethod("Default", null);
 		}
 
-		protected virtual void SetupEntityProperty()
+		protected TEntity CreateKeyEntity(object[] keyValues)
 		{
-			// Look for the type 
-			foreach (var prop in DataContext.GetType().GetRuntimeProperties())
+			if (KeyProperties.Length != keyValues.Length)
+				throw new ArgumentOutOfRangeException(nameof(keyValues), $"Expected {KeyProperties.Length} values, but got {keyValues?.Length ?? 0} instead.");
+
+			TEntity result = new TEntity();
+			for (int index = 0; index < KeyProperties.Length; index++)
 			{
-#if NETSTANDARD1_4
-				if (prop.PropertyType == typeof(DbSet<TEntity>))
-#else
-				if (prop.PropertyType == typeof(DbSet<TEntity>) || prop.PropertyType == typeof(IDbSet<TEntity>))
-#endif
-				{
-					Entity = (DbSet<TEntity>)prop.GetValue(DataContext);
-					InternalSet = (DbSet<TEntity>)prop.GetValue(DataContext);
-					return;
-				}
+				KeyProperties[index].SetValue(result, keyValues[index]);
 			}
 
-			throw new InvalidOperationException("Unable to find type DbSet<TEntity> of IDbSet<TEntity> in data context provided.");
+			return result;
+		}
+
+#if DOTNETFULL
+		public DbEntityEntry<TEntity> GetEntryByKey(TEntity entity)
+#else
+		public EntityEntry<TEntity> GetEntryByKey(TEntity entity)
+#endif
+		{
+			return DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
 		}
 
 		protected bool KeysEqual(TEntity value1, TEntity value2)
@@ -198,21 +194,13 @@ namespace EFRepository
 			{
 				object value = keyField.GetValue(entity);
 
-				object defaultValue = DefaultMethod
-					.MakeGenericMethod(keyField.PropertyType)
-					.Invoke(null, new object[0]);
+				object defaultValue = Activator.CreateInstance(keyField.PropertyType);
 
 				if (value.Equals(defaultValue))
 					return true;
 			}
 
 			return false;
-		}
-
-		/// <summary>Used to get the default value for different key types. Do not remove -- invoked via reflection.</summary>
-		private static T Default<T>()
-		{
-			return default(T);
 		}
 	}
 }
