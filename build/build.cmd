@@ -1,11 +1,9 @@
 @echo off
+
 echo Building EFRepositoryCore
 
 dotnet build --configuration Release ..\src\EFRepositoryCore
 REM dotnet pack ..\src\EFRepositoryCore --output ..\..\releases\ --configuration Release
-
-echo EFRepositoryCore Packed
-
 
 echo Building EFRepository for .NET Framework
 
