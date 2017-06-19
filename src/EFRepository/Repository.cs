@@ -118,12 +118,12 @@ namespace EFRepository
 			return DataContext.SaveChanges();
 		}
 
-		public Task<int> SaveAsync()
+		public virtual Task<int> SaveAsync()
 		{
 			return DataContext.SaveChangesAsync();
 		}
 
-		public Task<int> SaveAsync(CancellationToken cancellationToken)
+		public virtual Task<int> SaveAsync(CancellationToken cancellationToken)
 		{
 			return DataContext.SaveChangesAsync(cancellationToken);
 		}
@@ -151,7 +151,7 @@ namespace EFRepository
 			KeyProperties = keys.ToArray();
 		}
 
-		protected TEntity CreateKeyEntity(object[] keyValues)
+		protected virtual TEntity CreateKeyEntity(object[] keyValues)
 		{
 			if (KeyProperties.Length != keyValues.Length)
 				throw new ArgumentOutOfRangeException(nameof(keyValues), $"Expected {KeyProperties.Length} values, but got {keyValues?.Length ?? 0} instead.");
@@ -166,7 +166,7 @@ namespace EFRepository
 		}
 
 #if DOTNETFULL
-		public DbEntityEntry<TEntity> GetEntryByKey(TEntity entity)
+		public virtual DbEntityEntry<TEntity> GetEntryByKey(TEntity entity)
 #else
 		public EntityEntry<TEntity> GetEntryByKey(TEntity entity)
 #endif
@@ -174,7 +174,7 @@ namespace EFRepository
 			return DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
 		}
 
-		protected bool KeysEqual(TEntity value1, TEntity value2)
+		protected virtual bool KeysEqual(TEntity value1, TEntity value2)
 		{
 			foreach (var keyfield in KeyProperties)
 			{
@@ -188,7 +188,7 @@ namespace EFRepository
 			return true;
 		}
 
-		protected bool IsNew(TEntity entity)
+		protected virtual bool IsNew(TEntity entity)
 		{
 			foreach (var keyField in KeyProperties)
 			{

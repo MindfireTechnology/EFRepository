@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
 	<metadata>
 		<id>Mindfire.EFRepository</id>
-		<version>1.0.0-alpha</version>
+		<version>1.0.1</version>
 		<authors>Nate Zaugg</authors>
 		<owners>Nate Zaugg</owners>
 		<title>EF Repository</title>
