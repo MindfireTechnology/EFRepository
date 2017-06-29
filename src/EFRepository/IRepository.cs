@@ -12,29 +12,29 @@ namespace EFRepository
 		IQueryable<TEntity> Entity { get; }
 
 		/// <summary>
-		/// Find based on key
+		/// Find an entity based on key(s)
 		/// </summary>
 		/// <param name="keys">The key(s) for the table</param>
 		/// <returns>Entity if found, otherwise null</returns>
-		TEntity Find(params object[] keys);
+		TEntity FindOne(params object[] keys);
 
 		/// <summary>
-		/// Add or update an entity
+		/// Add or update entities
 		/// </summary>
 		/// <param name="values">Entities to add</param>
 		void AddOrUpdate(params TEntity[] values);
 
 		/// <summary>
-		/// Add or update an entity
+		/// Add or update entities
 		/// </summary>
 		/// <param name="collection">Entities to add</param>
 		void AddOrUpdate(IEnumerable<TEntity> collection);
 
 		/// <summary>
-		/// Delete entity by key
+		/// Delete a single entity by key(s)
 		/// </summary>
 		/// <param name="keys">The key(s) for the table</param>
-		void Delete(params object[] keys);
+		void DeleteOne(params object[] keys);
 
 		/// <summary>
 		/// Delete one or more entities

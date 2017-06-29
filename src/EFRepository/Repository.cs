@@ -45,7 +45,7 @@ namespace EFRepository
 			SetupKeyProperty();
 		}
 
-		public virtual TEntity Find(params object[] keys)
+		public virtual TEntity FindOne(params object[] keys)
 		{
 			return InternalSet.Find(keys);
 		}
@@ -85,7 +85,7 @@ namespace EFRepository
 			}
 		}
 
-		public virtual void Delete(params object[] keys)
+		public virtual void DeleteOne(params object[] keys)
 		{
 			TEntity value = CreateKeyEntity(keys);
 
