@@ -87,7 +87,7 @@ namespace UnitTests
 			var context = new DashboardDataContext();
 			IRepository<User> userRepo = new Repository<User>(context);
 
-			userRepo.Delete(10);
+			userRepo.DeleteOne(10);
 
 			userRepo.Save();
 		}
@@ -148,18 +148,20 @@ namespace UnitTests
 		[TestMethod]
 		public void SimpleQueryMappedTransaction()
 		{
-			var context = new DashboardDataContext();
-			TinyMapper.Bind<User, UserDTO>();
-			IRepository<User> userRepo = new Repository<User>(context);
-
-			using (var scope = new TransactionScope())
+			using (var context = new DashboardDataContext())
 			{
+				TinyMapper.Bind<User, UserDTO>();
+				IRepository<User> userRepo = new Repository<User>(context);
 
-				var user = userRepo.Entity.ByName("Nate", null).ToDto().ToList();
+				using (var scope = new TransactionScope())
+				{
 
-				Assert.IsNotNull(user);
+					var user = userRepo.Entity.ByName("Nate", null).ToDto().ToList();
 
-				scope.Complete();
+					Assert.IsNotNull(user);
+
+					scope.Complete();
+				}
 			}
 		}
 	}
