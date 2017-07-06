@@ -13,15 +13,30 @@ namespace UnitTests
 	[TestClass]
 	public class Tests
 	{
+		protected DashboardDataContext Context { get; set; }
+
+		[TestInitialize]
+		public void Initialize()
+		{
+			var connection = Effort.DbConnectionFactory.CreateTransient();
+			Context = new DashboardDataContext(connection, true);
+			TestDataLoader.LoadData(Context);
+		}
+
+		[TestCleanup]
+		public void Cleanup()
+		{
+			Context.Dispose();
+		}
+
 		[TestMethod]
 		public void SimpleQuery()
 		{
-			var context = new DashboardDataContext();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
 
 			var results = userRepo.Entity
 				.ByUserId(null)
-				.ByName("Nate", null).Any();
+				.ByName("Peter", null).Any();
 
 
 			Assert.IsTrue(results);
@@ -30,11 +45,10 @@ namespace UnitTests
 		[TestMethod]
 		public void SimpleQueryMapped()
 		{
-			var context = new DashboardDataContext();
 			TinyMapper.Bind<User, UserDTO>();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
 
-			var user = userRepo.Entity.ByName("Nate", null).ToDto().ToList();
+			var user = userRepo.Entity.ByName("Ovaltine", null).ToDto().ToList();
 
 
 			Assert.IsNotNull(user);
@@ -43,8 +57,7 @@ namespace UnitTests
 		[TestMethod]
 		public void SimpleInsert()
 		{
-			var context = new DashboardDataContext();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
 
 			userRepo.AddOrUpdate(new User
 			{
@@ -58,46 +71,48 @@ namespace UnitTests
 		[TestMethod]
 		public void SimpleUpdate()
 		{
-			var context = new DashboardDataContext();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
 
-			var user = userRepo.Entity.Where(n => n.FirstName == "Nate").FirstOrDefault();
+			var user = userRepo.Entity.Where(n => n.FirstName == "Lavender").FirstOrDefault();
 			user.LastName = "Zaugg";
 
 			userRepo.AddOrUpdate(user);
 
-			userRepo.Save();
+			Assert.AreEqual(1, userRepo.Save());
 		}
 
 		[TestMethod]
 		public void SimpleDelete()
 		{
-			var context = new DashboardDataContext();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
+			var taskRepo = new Repository<Task>(Context);
+			var workLogRepo = new Repository<WorkLog>(Context);
 
-			var user = userRepo.Entity.Where(n => n.FirstName == "Nate").FirstOrDefault();
+			var user = userRepo.Entity.Where(n => n.FirstName == "Bruton").FirstOrDefault();
 			userRepo.Delete(user);
 
 			userRepo.Save();
+
+			// Check user is gone
+			var deletedUser = userRepo.Entity.Where(n => n.FirstName == "Bruton").FirstOrDefault();
+			Assert.IsNull(deletedUser);
 		}
 
 		[TestMethod]
 		public void KeyDelete()
 		{
-			var context = new DashboardDataContext();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
 
 			userRepo.DeleteOne(10);
 
-			userRepo.Save();
+			Assert.AreEqual(1, userRepo.Save());
 		}
 
 
 		[TestMethod]
 		public void DetachedUpdate()
 		{
-			var context = new DashboardDataContext();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
 
 			var user = new User
 			{
@@ -114,8 +129,7 @@ namespace UnitTests
 		[TestMethod]
 		public void DetachedUpdateWithExistingEntity()
 		{
-			var context = new DashboardDataContext();
-			IRepository<User> userRepo = new Repository<User>(context);
+			IRepository<User> userRepo = new Repository<User>(Context);
 
 			userRepo.Entity.ToList(); // Load everything!
 			
@@ -136,8 +150,7 @@ namespace UnitTests
 		[TestMethod]
 		public void SimpleIDKeyAttributeMissingQuery()
 		{
-			var context = new DashboardDataContext();
-			IRepository<Task> userRepo = new Repository<Task>(context);
+			IRepository<Task> userRepo = new Repository<Task>(Context);
 
 			var results = userRepo.Entity.Any();
 
@@ -148,20 +161,17 @@ namespace UnitTests
 		[TestMethod]
 		public void SimpleQueryMappedTransaction()
 		{
-			using (var context = new DashboardDataContext())
+			TinyMapper.Bind<User, UserDTO>();
+			IRepository<User> userRepo = new Repository<User>(Context);
+
+			using (var scope = new TransactionScope())
 			{
-				TinyMapper.Bind<User, UserDTO>();
-				IRepository<User> userRepo = new Repository<User>(context);
 
-				using (var scope = new TransactionScope())
-				{
+				var user = userRepo.Entity.ByName("Schoonie", null).ToDto().ToList();
 
-					var user = userRepo.Entity.ByName("Nate", null).ToDto().ToList();
+				Assert.IsNotNull(user);
 
-					Assert.IsNotNull(user);
-
-					scope.Complete();
-				}
+				scope.Complete();
 			}
 		}
 	}
