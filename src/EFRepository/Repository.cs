@@ -33,13 +33,7 @@ namespace EFRepository
 		public Repository(DbContext context, bool ownsDataContext = true)
 		{
 			DataContext = context ?? throw new ArgumentNullException(nameof(context));
-#if DOTNETFULL
-			DataContext.Configuration.AutoDetectChangesEnabled = false;
-			DataContext.Configuration.ProxyCreationEnabled = false;
-#else
-			DataContext.ChangeTracker.AutoDetectChangesEnabled = false;
-			DataContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-#endif
+
 			OwnsDataContext = ownsDataContext;
 			InternalSet = DataContext.Set<TEntity>();
 			SetupKeyProperty();
@@ -69,12 +63,7 @@ namespace EFRepository
 				{
 					// Is this entity already attached?
 					var entry = GetEntryByKey(entity);
-					if (entry == null)
-					{
-						InternalSet.Attach(entity);
-						entry = DataContext.Entry(entity);
-					}
-					else if (entry.Entity.GetHashCode() != entity.GetHashCode()) // Objects are NOT the same!
+					if (entry.Entity.GetHashCode() != entity.GetHashCode()) // Objects are NOT the same!
 					{
 						throw new NotSupportedException("A different entity object with the same key already exists in the ChangeTracker");
 					}
@@ -89,7 +78,6 @@ namespace EFRepository
 		{
 			TEntity value = CreateKeyEntity(keys);
 
-			InternalSet.Attach(value);
 			var entry = GetEntryByKey(value);
 			entry.State = EntityState.Deleted;
 
@@ -98,7 +86,7 @@ namespace EFRepository
 
 		public virtual void Delete(params TEntity[] values)
 		{
-			Delete(values);
+			Delete(values.AsEnumerable());
 			if (ItemDeleted != null)
 				values.ToList().ForEach(n => ItemDeleted?.Invoke(n));
 		}
@@ -114,18 +102,36 @@ namespace EFRepository
 
 		public virtual int Save()
 		{
-			// Do we need to call DetechChanges?
+			CheckDetectChanges();
+			
 			return DataContext.SaveChanges();
 		}
 
 		public virtual Task<int> SaveAsync()
 		{
+			CheckDetectChanges();
+
 			return DataContext.SaveChangesAsync();
 		}
 
 		public virtual Task<int> SaveAsync(CancellationToken cancellationToken)
 		{
+			CheckDetectChanges();
+
 			return DataContext.SaveChangesAsync(cancellationToken);
+		}
+
+		protected virtual void CheckDetectChanges()
+		{
+#if DOTNETFULL
+			if(!DataContext.Configuration.AutoDetectChangesEnabled && DataContext.Configuration.ProxyCreationEnabled)
+#else
+			if (!DataContext.ChangeTracker.AutoDetectChangesEnabled && DataContext.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.NoTracking)
+#endif
+			{
+				DataContext.ChangeTracker.DetectChanges();
+			}
+
 		}
 
 		public virtual void Dispose()
@@ -171,7 +177,18 @@ namespace EFRepository
 		public EntityEntry<TEntity> GetEntryByKey(TEntity entity)
 #endif
 		{
-			return DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
+			if (entity == null)
+				throw new ArgumentNullException(nameof(entity));
+
+			var result = DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
+
+			if(result == null)
+			{
+				InternalSet.Attach(entity);
+				result = DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
+			}
+
+			return result;
 		}
 
 		protected virtual bool KeysEqual(TEntity value1, TEntity value2)
