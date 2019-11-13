@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +8,7 @@ using System.Transactions;
 namespace EFRepository
 {
 	/// <summary>
-	/// A wrapper for TransactionScope that provides a simple abstraction allowing for the 
+	/// A wrapper for TransactionScope that provides a simple abstraction allowing for the
 	/// most important parameters to be passed in more easily and ignoring parameters that
 	/// exist only for backward compatability.
 	/// </summary>
@@ -18,21 +18,21 @@ namespace EFRepository
 
 		public ScopedTransaction()
 		{
-			Transaction = new TransactionScope(TransactionScopeOption.Required, 
+			Transaction = new TransactionScope(TransactionScopeOption.Required,
 				new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
 				TransactionScopeAsyncFlowOption.Enabled);
 		}
 
 		public ScopedTransaction(IsolationLevel isolation)
 		{
-			Transaction = new TransactionScope(TransactionScopeOption.Required, 
+			Transaction = new TransactionScope(TransactionScopeOption.Required,
 				new TransactionOptions { IsolationLevel = isolation },
 				TransactionScopeAsyncFlowOption.Enabled);
 		}
 
 		public ScopedTransaction(IsolationLevel isolation, TransactionScopeOption scopeOption)
 		{
-			Transaction = new TransactionScope(scopeOption, 
+			Transaction = new TransactionScope(scopeOption,
 				new TransactionOptions { IsolationLevel = isolation },
 				TransactionScopeAsyncFlowOption.Enabled);
 		}
@@ -63,17 +63,26 @@ namespace EFRepository
 				TransactionScopeAsyncFlowOption.Enabled);
 		}
 
+		/// <summary>
+		/// Completes the transaction and commits any changes
+		/// </summary>
 		public void Commit()
 		{
 			Transaction.Complete();
 		}
 
+		/// <summary>
+		/// Ends the transaction scope without committing any changes
+		/// </summary>
 		public void Rollback()
 		{
 			Transaction.Dispose();
 			Transaction = null;
 		}
 
+		/// <summary>
+		/// Ends the transaction scope. If changes have not been committed, they will be rolled back.
+		/// </summary>
 		public void Dispose()
 		{
 			if (Transaction != null)
