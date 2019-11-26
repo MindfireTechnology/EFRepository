@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace EFRepository
 {
+	/// <summary>
+	/// Interface for interacting with data storage through the repository pattern
+	/// </summary>
+	/// <typeparam name="TEntity"></typeparam>
 	public interface IRepository<TEntity> : IDisposable where TEntity : class, new()
 	{
 		/// <summary>Queriable Entity</summary>
