@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2013/01/nuspec.xsd">
 	<metadata>
 		<id>Mindfire.EFRepository</id>
-		<version>1.0.1</version>
+		<version>1.1.1</version>
 		<authors>Nate Zaugg</authors>
 		<owners>Nate Zaugg</owners>
 		<title>EF Repository</title>
@@ -21,11 +21,21 @@
 				<dependency id="Microsoft.EntityFrameworkCore" version="1.1.1" exclude="Build,Analyzers" />
 				<dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
 			</group>
+			<group targetFramework=".NETStandard2.0">
+				<dependency id="Microsoft.EntityFrameworkCore" version="2.2.6" exclude="Build,Analyzers" />
+				<dependency id="NETStandard.Library" version="2.0.3" exclude="Build,Analyzers" />
+			</group>
+			<group targetFramework=".NETCoreApp3.0">
+				<dependency id="Microsoft.EntityFrameworkCore" version="3.0.0" exclude="Build,Analyzers" />
+				<dependency id="NETStandard.Library" version="3.0.0" exclude="Build,Analyzers" />
+			</group>
 		</dependencies>
-		<frameworkAssemblies>
+		<!-- <frameworkAssemblies>
 			<frameworkAssembly assemblyName="EFRepository" targetFramework=".NETFramework4.5.2" />
 			<frameworkAssembly assemblyName="EFRepositoryCore" targetFramework=".NETStandard1.4" />
-		</frameworkAssemblies>
+			<frameworkAssembly assemblyName="EFRepositoryCore" targetFramework=".NETStandard2.0" />
+			<frameworkAssembly assemblyName="EFRepositoryCore" targetFramework=".NETCoreApp3.0" />
+		</frameworkAssemblies> -->
 	</metadata>
 	<files>
 		<file src="bin\Release\EFRepository.dll" target="lib\net452\EFRepository.dll" />
@@ -34,5 +44,9 @@
 		<file src="..\EFRepositoryCore\bin\Release\netstandard1.4\EFRepositoryCore.dll" target="lib\netstandard1.4\EFRepositoryCore.dll" />
 		<file src="..\EFRepositoryCore\bin\Release\netstandard1.4\EFRepositoryCore.pdb" target="lib\netstandard1.4\EFRepositoryCore.pdb" />
 		<file src="..\EFRepositoryCore\bin\Release\netstandard1.4\EFRepositoryCore.xml" target="lib\netstandard1.4\EFRepositoryCore.xml" />
+		<file src="..\EFRepository-Standard-2_0\bin\Release\netstandard2.0\EFRepositoryCore.dll" target="lib\netstandard2.0\EFRepositoryCore.dll" />
+		<file src="..\EFRepository-Standard-2_0\bin\Release\netstandard2.0\EFRepositoryCore.pdb" target="lib\netstandard2.0\EFRepositoryCore.pdb" />
+		<file src="..\EFRepository-Core-3_0\bin\Release\netcoreapp3.0\EFRepositoryCore.dll" target="lib\netcoreapp3.0\EFRepositoryCore.dll" />
+		<file src="..\EFRepository-Core-3_0\bin\Release\netcoreapp3.0\EFRepositoryCore.pdb" target="lib\netcoreapp3.0\EFRepositoryCore.pdb" />
 	</files>
 </package>
