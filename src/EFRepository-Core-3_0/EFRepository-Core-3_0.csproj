@@ -2,10 +2,10 @@
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.0</TargetFramework>
 		<RootNamespace>Mindfire.EFRepositoryCore</RootNamespace>
-		<Version>1.1.1</Version>
+		<Version>1.1.2</Version>
 		<Company>Mindfire Technology</Company>
 		<Description>EFRepository allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</Description>
-		<Copyright>2017</Copyright>
+		<Copyright>2019</Copyright>
 		<PackageProjectUrl>https://github.com/MindfireTechnology/EFRepository</PackageProjectUrl>
 		<PackageIconUrl>https://avatars3.githubusercontent.com/u/13372702?v=3&amp;s=200</PackageIconUrl>
 		<RepositoryUrl>https://github.com/MindfireTechnology/EFRepository</RepositoryUrl>
@@ -17,8 +17,8 @@
 		<Compile Include="..\EFRepository\IRepository.cs" Link="IRepository.cs" />
 		<Compile Include="..\EFRepository\Repository.cs" Link="Repository.cs" />
 	</ItemGroup>
-  <ItemGroup>
+	<ItemGroup>
 	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.0.0" />
-  </ItemGroup>
+	</ItemGroup>
 
 </Project>

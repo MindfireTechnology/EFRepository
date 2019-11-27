@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFRepository", "EFRepository\EFRepository.csproj", "{BC2ABA24-DF2C-4BE5-9B90-664A5C8B0572}"
 EndProject
@@ -9,9 +9,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\Unit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFRepositoryCore", "EFRepositoryCore\EFRepositoryCore.csproj", "{6C42DC49-A54C-4FFC-80CE-A64551337D3F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EFRepository-Standard-2_0", "EFRepository-Standard-2_0\EFRepository-Standard-2_0.csproj", "{9AD9EE32-C4F8-4230-B934-A44B7F0C42D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFRepository-Standard-2_0", "EFRepository-Standard-2_0\EFRepository-Standard-2_0.csproj", "{9AD9EE32-C4F8-4230-B934-A44B7F0C42D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFRepository-Standard-3_0", "EFRepository-Standard-3_0\EFRepository-Standard-3_0.csproj", "{0B42076A-0B1C-48D6-8953-484507DFBE4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EFRepository-Core-3_0", "EFRepository-Core-3_0\EFRepository-Core-3_0.csproj", "{47EDA84E-E593-4C7A-AAFE-42279E20308D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{FF0B9269-0D2A-40E9-9143-EDE411AA80E4}"
+	ProjectSection(SolutionItems) = preProject
+		..\README.md = ..\README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +40,10 @@ Global
 		{9AD9EE32-C4F8-4230-B934-A44B7F0C42D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9AD9EE32-C4F8-4230-B934-A44B7F0C42D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9AD9EE32-C4F8-4230-B934-A44B7F0C42D0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0B42076A-0B1C-48D6-8953-484507DFBE4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0B42076A-0B1C-48D6-8953-484507DFBE4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0B42076A-0B1C-48D6-8953-484507DFBE4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0B42076A-0B1C-48D6-8953-484507DFBE4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{47EDA84E-E593-4C7A-AAFE-42279E20308D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{47EDA84E-E593-4C7A-AAFE-42279E20308D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{47EDA84E-E593-4C7A-AAFE-42279E20308D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{47EDA84E-E593-4C7A-AAFE-42279E20308D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
