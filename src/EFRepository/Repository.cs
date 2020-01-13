@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -17,46 +17,55 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace EFRepository
 {
-	public class Repository<TEntity> : IRepository<TEntity> where TEntity : class, new()
+	public class Repository : IRepository
 	{
 		protected DbContext DataContext;
-		protected DbSet<TEntity> InternalSet;
-		protected PropertyInfo[] KeyProperties;
 		protected bool OwnsDataContext;
 
-		public event Action<TEntity> ItemAdded;
-		public event Action<TEntity> ItemModified;
-		public event Action<TEntity> ItemDeleted;
+		//protected DbSet<TEntity> InternalSet;
+		//protected PropertyInfo[] KeyProperties;
 
-		public virtual IQueryable<TEntity> Entity { get => InternalSet; }
+		public event Action<object> ItemAdded;
+		public event Action<object> ItemModified;
+		public event Action<object> ItemDeleted;
 
 		public Repository(DbContext context, bool ownsDataContext = true)
 		{
 			DataContext = context ?? throw new ArgumentNullException(nameof(context));
 
 			OwnsDataContext = ownsDataContext;
-			InternalSet = DataContext.Set<TEntity>();
-			SetupKeyProperty();
+			//InternalSet = DataContext.Set<TEntity>();
+			//SetupKeyProperty();
 		}
 
-		public virtual TEntity FindOne(params object[] keys)
+		public virtual IQueryable<TEntity> Query<TEntity>() where TEntity : class, new()
 		{
-			return InternalSet.Find(keys);
+			return DataContext.Set<TEntity>();
 		}
 
-		public virtual void AddOrUpdate(params TEntity[] values)
+		public virtual TEntity FindOne<TEntity>(params object[] keys) where TEntity : class, new()
+		{
+			return DataContext.Set<TEntity>().Find(keys);
+		}
+
+		public virtual Task<TEntity> FindOneAsync<TEntity>(params object[] keys) where TEntity : class, new()
+		{
+			return Task.Run(() => DataContext.Set<TEntity>().Find(keys));
+		}
+
+		public virtual void AddOrUpdate<TEntity>(params TEntity[] values) where TEntity : class, new()
 		{
 			AddOrUpdate(values.AsEnumerable());
 		}
 
-		public virtual void AddOrUpdate(IEnumerable<TEntity> collection)
+		public virtual void AddOrUpdate<TEntity>(IEnumerable<TEntity> collection) where TEntity : class, new()
 		{
 			foreach (var entity in collection ?? throw new ArgumentNullException(nameof(collection)))
 			{
 				// Check to see if this is a new entity (by checking the key)
 				if (IsNew(entity))
 				{
-					InternalSet.Add(entity);
+					DataContext.Set<TEntity>().Add(entity);
 					ItemAdded?.Invoke(entity);
 				}
 				else
@@ -74,9 +83,9 @@ namespace EFRepository
 			}
 		}
 
-		public virtual void DeleteOne(params object[] keys)
+		public virtual void DeleteOne<TEntity>(params object[] keys) where TEntity : class, new()
 		{
-			TEntity value = CreateKeyEntity(keys);
+			var value = CreateKeyEntity<TEntity>(keys);
 
 			var entry = GetEntryByKey(value);
 			entry.State = EntityState.Deleted;
@@ -84,18 +93,16 @@ namespace EFRepository
 			ItemDeleted?.Invoke(value);
 		}
 
-		public virtual void Delete(params TEntity[] values)
+		public virtual void Delete<TEntity>(params TEntity[] values) where TEntity : class, new()
 		{
 			Delete(values.AsEnumerable());
-			if (ItemDeleted != null)
-				values.ToList().ForEach(n => ItemDeleted?.Invoke(n));
 		}
 
-		public virtual void Delete(IEnumerable<TEntity> collection)
+		public virtual void Delete<TEntity>(IEnumerable<TEntity> collection) where TEntity : class, new()
 		{
 			foreach (var entity in collection)
 			{
-				InternalSet.Remove(entity);
+				DataContext.Set<TEntity>().Remove(entity);
 				ItemDeleted?.Invoke(entity);
 			}
 		}
@@ -140,7 +147,7 @@ namespace EFRepository
 				DataContext.Dispose();
 		}
 
-		protected virtual void SetupKeyProperty()
+		protected PropertyInfo[] GetKeyProperties<TEntity>()
 		{
 			// Get properties of the Entity and look for the key(s)
 			var keys = new List<PropertyInfo>();
@@ -154,27 +161,28 @@ namespace EFRepository
 				}
 			}
 
-			KeyProperties = keys.ToArray();
+			return keys.ToArray();
 		}
 
-		protected virtual TEntity CreateKeyEntity(object[] keyValues)
+		protected virtual TEntity CreateKeyEntity<TEntity>(object[] keyValues) where TEntity : class, new()
 		{
-			if (KeyProperties.Length != keyValues.Length)
-				throw new ArgumentOutOfRangeException(nameof(keyValues), $"Expected {KeyProperties.Length} values, but got {keyValues?.Length ?? 0} instead.");
+			var keyProperties = GetKeyProperties<TEntity>();
+			if (keyProperties.Length != keyValues.Length)
+				throw new ArgumentOutOfRangeException(nameof(keyValues), $"Expected {keyProperties.Length} values, but got {keyValues?.Length ?? 0} instead.");
 
 			TEntity result = new TEntity();
-			for (int index = 0; index < KeyProperties.Length; index++)
+			for (int index = 0; index < keyProperties.Length; index++)
 			{
-				KeyProperties[index].SetValue(result, keyValues[index]);
+				keyProperties[index].SetValue(result, keyValues[index]);
 			}
 
 			return result;
 		}
 
 #if DOTNETFULL
-		public virtual DbEntityEntry<TEntity> GetEntryByKey(TEntity entity)
+		public virtual DbEntityEntry<TEntity> GetEntryByKey<TEntity>(TEntity entity)  where TEntity : class, new()
 #else
-		public EntityEntry<TEntity> GetEntryByKey(TEntity entity)
+		public EntityEntry<TEntity> GetEntryByKey<TEntity>(TEntity entity) where TEntity : class, new()
 #endif
 		{
 			if (entity == null)
@@ -184,16 +192,16 @@ namespace EFRepository
 
 			if(result == null)
 			{
-				InternalSet.Attach(entity);
+				DataContext.Set<TEntity>().Attach(entity);
 				result = DataContext.ChangeTracker.Entries<TEntity>().SingleOrDefault(n => KeysEqual(n.Entity, entity));
 			}
 
 			return result;
 		}
 
-		protected virtual bool KeysEqual(TEntity value1, TEntity value2)
+		protected virtual bool KeysEqual<TEntity>(TEntity value1, TEntity value2) where TEntity : class, new()
 		{
-			foreach (var keyfield in KeyProperties)
+			foreach (var keyfield in GetKeyProperties<TEntity>())
 			{
 				object cmp1 = keyfield.GetValue(value1);
 				object cmp2 = keyfield.GetValue(value2);
@@ -205,9 +213,9 @@ namespace EFRepository
 			return true;
 		}
 
-		protected virtual bool IsNew(TEntity entity)
+		protected virtual bool IsNew<TEntity>(TEntity entity) where TEntity : class, new()
 		{
-			foreach (var keyField in KeyProperties)
+			foreach (var keyField in GetKeyProperties<TEntity>())
 			{
 				object value = keyField.GetValue(entity);
 

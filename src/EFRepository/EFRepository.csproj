@@ -53,6 +53,7 @@
     <Compile Include="Transaction.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Build.md" />
     <None Include="Mindfire.EFRepository.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>

@@ -24,7 +24,7 @@ namespace EFRepository
 
 
 		/// <summary>Queriable Entity</summary>
-		IQueryable<TEntity> Query<TEntity>() where TEntity : class, new();
+		IQueryable<TEntity> Get<TEntity>() where TEntity : class, new();
 
 		/// <summary>
 		/// Find an entity based on key(s)
