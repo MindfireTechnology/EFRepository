@@ -8,11 +8,11 @@ using Xunit;
 
 namespace UnitTestsCore
 {
-    public class UnitTest1
-    {
-        [Fact]
-        public void SimpleInsert()
-        {
+	public class UnitTest1
+	{
+		[Fact]
+		public void SimpleInsert()
+		{
 			var repo = new Repository(new PlaygroundContext(), true);
 
 			var usr = new Users
@@ -247,22 +247,23 @@ namespace UnitTestsCore
 		[Fact]
 		public async void MultipleTableQuery()
 		{
-			using (var repo = new Repository(new PlaygroundContext(options => options.), true))
-			{
-				var result = from u in repo.Query<Users>()
-							 from l in u.Tasks
-							 where l.Name == "Task 1"
-							 select new
-							 {
-								 u,
-								 l,
-								 //m = repo.Get<EventLog>()
-							 };
+			// WIP
+			//using (var repo = new Repository(new PlaygroundContext(options => options), true))
+			//{
+			//	var result = from u in repo.Query<Users>()
+			//				 from l in u.Tasks
+			//				 where l.Name == "Task 1"
+			//				 select new
+			//				 {
+			//					 u,
+			//					 l,
+			//					 //m = repo.Get<EventLog>()
+			//				 };
 
-				var list = await result.ToArrayAsync();
+			//	var list = await result.ToArrayAsync();
 
 
-			}
+			//}
 		}
 
 	}

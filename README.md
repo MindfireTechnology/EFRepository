@@ -76,3 +76,8 @@ Use a LINQ-Enabled version of the Repository Pattern for Entity Framework
 
 		/// <summary>Event that fires when an item is deleted</summary>
 		event Action<TEntity> ItemDeleted;
+
+## Goals for 2.0
+ - Better handling of client-provided ID's
+ - Better handling of joining of other tables into the query
+ - Better transactional support -- espeically for EF Core

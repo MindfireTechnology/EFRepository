@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netcoreapp3.0</TargetFramework>
 		<RootNamespace>Mindfire.EFRepositoryCore</RootNamespace>
-		<Version>1.1.2</Version>
+		<Version>1.1.3</Version>
 		<Company>Mindfire Technology</Company>
 		<Description>EFRepository allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</Description>
 		<Copyright>2019</Copyright>

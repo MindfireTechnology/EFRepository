@@ -10,7 +10,7 @@ namespace EFRepository
 	/// Interface for interacting with data storage through the repository pattern
 	/// </summary>
 	/// <typeparam name="TEntity"></typeparam>
-	public interface IRepository : IDisposable
+	public interface IRepository : IDisposable 
 	{
 
 		/// <summary>Event that fires when an item is added</summary>
@@ -25,6 +25,13 @@ namespace EFRepository
 
 		/// <summary>Queriable Entity</summary>
 		IQueryable<TEntity> Query<TEntity>() where TEntity : class, new();
+
+		/// <summary>
+		/// Join another entity
+		/// </summary>
+		/// <typeparam name="TEntity"></typeparam>
+		/// <returns></returns>
+		IQueryable<TEntity> Join<TEntity>() where TEntity : class, new();
 
 		/// <summary>
 		/// Find an entity based on key(s)

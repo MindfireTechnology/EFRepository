@@ -43,6 +43,12 @@ namespace EFRepository
 			return DataContext.Set<TEntity>();
 		}
 
+		public virtual IQueryable<TEntity> Join<TEntity>() where TEntity : class, new()
+		{
+			throw new NotImplementedException();
+		}
+
+
 		public virtual TEntity FindOne<TEntity>(params object[] keys) where TEntity : class, new()
 		{
 			return DataContext.Set<TEntity>().Find(keys);

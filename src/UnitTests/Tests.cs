@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MindfireClientDashboard.Data;
 using EFRepository;
@@ -32,9 +32,9 @@ namespace UnitTests
 		[TestMethod]
 		public void SimpleQuery()
 		{
-			IRepository<User> userRepo = new Repository<User>(Context);
+			IRepository userRepo = new Repository(Context);
 
-			var results = userRepo.Entity
+			var results = userRepo.Query<User>()
 				.ByUserId(null)
 				.ByName("Peter", null).Any();
 
