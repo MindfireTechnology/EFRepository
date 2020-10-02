@@ -51,6 +51,12 @@ namespace EFRepository
 		/// Add or update entities
 		/// </summary>
 		/// <param name="values">Entities to add</param>
+		void AddNew<TEntity>(params TEntity[] values) where TEntity : class, new();
+
+		/// <summary>
+		/// Add or update entities
+		/// </summary>
+		/// <param name="values">Entities to add</param>
 		void AddOrUpdate<TEntity>(params TEntity[] values) where TEntity : class, new();
 
 		/// <summary>
