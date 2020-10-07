@@ -1,72 +1,89 @@
 using System;
+using System.Data.Common;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace UnitTestsCore.Data
 {
     public partial class PlaygroundContext : DbContext
     {
-        public PlaygroundContext()
-        {
-        }
-
-        public PlaygroundContext(DbContextOptions<PlaygroundContext> options)
-            : base(options)
-        {
-			
-        }
+		public static DbConnection Connection;
 
         public virtual DbSet<EventLog> EventLog { get; set; }
         public virtual DbSet<TaskAssignments> TaskAssignments { get; set; }
         public virtual DbSet<Tasks> Tasks { get; set; }
         public virtual DbSet<Users> Users { get; set; }
 
+        public PlaygroundContext() : base(new DbContextOptionsBuilder<PlaygroundContext>()
+			//.UseInMemoryDatabase("Playground").Options)
+			.UseSqlite(CreateInMemoryDatabase()).Options)
+		{
+			Database.EnsureCreated();
+        }
+
+        public PlaygroundContext(DbContextOptions<PlaygroundContext> options)
+            : base(options)
+        {
+        }
+
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-
             if (!optionsBuilder.IsConfigured)
             {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=192.168.10.132,2005;User Id=sa;Password=PepperPots1$;Database=Playground");
+				//optionsBuilder.UseSqlite(CreateInMemoryDatabase());
             }
         }
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<EventLog>(entity =>
-        //    {
-        //        entity.Property(e => e.EventId).ValueGeneratedNever();
+		private static DbConnection CreateInMemoryDatabase()
+		{
+			if (Connection == null)
+			{
+				Connection = new SqliteConnection("DataSource=file:memdb1?mode=memory&cache=shared");
+				Connection.Open();
+			}
 
-        //        entity.Property(e => e.EventType).IsFixedLength();
-        //    });
+			return Connection;
+		}
 
-        //    modelBuilder.Entity<TaskAssignments>(entity =>
-        //    {
-        //        entity.HasOne(d => d.Task)
-        //            .WithMany(p => p.TaskAssignments)
-        //            .HasForeignKey(d => d.TaskId)
-        //            .OnDelete(DeleteBehavior.ClientSetNull)
-        //            .HasConstraintName("FK_TaskAssignments_Tasks");
+		//protected override void OnModelCreating(ModelBuilder modelBuilder)
+		//{
+		//	//modelBuilder.Entity<EventLog>(entity =>
+		//	//{
+		//	//	entity.Property(e => e.EventId).ValueGeneratedNever();
 
-        //        entity.HasOne(d => d.User)
-        //            .WithMany(p => p.TaskAssignments)
-        //            .HasForeignKey(d => d.UserId)
-        //            .OnDelete(DeleteBehavior.ClientSetNull)
-        //            .HasConstraintName("FK_TaskAssignments_Users");
-        //    });
+		//	//	entity.Property(e => e.EventType).IsFixedLength();
+		//	//});
 
-        //    modelBuilder.Entity<Tasks>(entity =>
-        //    {
-        //        entity.HasOne(d => d.OwnerUser)
-        //            .WithMany(p => p.Tasks)
-        //            .HasForeignKey(d => d.OwnerUserId)
-        //            .OnDelete(DeleteBehavior.ClientSetNull)
-        //            .HasConstraintName("FK_Tasks_Users");
-        //    });
+		//	//modelBuilder.Entity<TaskAssignments>(entity =>
+		//	//{
+		//	//	entity.HasOne(d => d.Task)
+		//	//		.WithMany(p => p.TaskAssignments)
+		//	//		.HasForeignKey(d => d.TaskId)
+		//	//		.OnDelete(DeleteBehavior.ClientSetNull)
+		//	//		.HasConstraintName("FK_TaskAssignments_Tasks");
 
-        //    OnModelCreatingPartial(modelBuilder);
-        //}
+		//	//	entity.HasOne(d => d.User)
+		//	//		.WithMany(p => p.TaskAssignments)
+		//	//		.HasForeignKey(d => d.UserId)
+		//	//		.OnDelete(DeleteBehavior.ClientSetNull)
+		//	//		.HasConstraintName("FK_TaskAssignments_Users");
+		//	//});
 
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+		//	//modelBuilder.Entity<Tasks>(entity =>
+		//	//{
+		//	//	entity.HasOne(d => d.OwnerUser)
+		//	//		.WithMany(p => p.Tasks)
+		//	//		.HasForeignKey(d => d.OwnerUserId)
+		//	//		.OnDelete(DeleteBehavior.ClientSetNull)
+		//	//		.HasConstraintName("FK_Tasks_Users");
+		//	//});
+
+		//	//OnModelCreatingPartial(modelBuilder);
+		//}
+
+		////partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

@@ -2,18 +2,26 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using EFRepository;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using UnitTestsCore.Data;
 using Xunit;
 
 namespace UnitTestsCore
 {
-	public class UnitTest1
+	public class RepoCoreTests
 	{
+		public static DbContext GetDbContext()
+		{
+			new FakeData().PopulateFakeData(new PlaygroundContext());
+			var ctx = new PlaygroundContext();
+			return ctx;
+		}
+
 		[Fact]
 		public void SimpleInsert()
 		{
-			var repo = new Repository(new PlaygroundContext(), true);
+			var repo = new Repository(GetDbContext(), true);
 
 			var usr = new Users
 			{
@@ -248,22 +256,20 @@ namespace UnitTestsCore
 		public async void MultipleTableQuery()
 		{
 			// WIP
-			//using (var repo = new Repository(new PlaygroundContext(options => options), true))
-			//{
-			//	var result = from u in repo.Query<Users>()
-			//				 from l in u.Tasks
-			//				 where l.Name == "Task 1"
-			//				 select new
-			//				 {
-			//					 u,
-			//					 l,
-			//					 //m = repo.Get<EventLog>()
-			//				 };
+			using (var repo = new Repository(GetDbContext(), true))
+			{
+				var result = from u in repo.Query<Users>()
+							 from l in u.Tasks
+							 where l.Name == "Task 1"
+							 select new
+							 {
+								 u,
+								 l,
+								 //m = repo.Get<EventLog>()
+							 };
 
-			//	var list = await result.ToArrayAsync();
-
-
-			//}
+				var list = await result.ToArrayAsync();
+			}
 		}
 
 	}

@@ -20,7 +20,7 @@ namespace UnitTests
 		{
 			var connection = Effort.DbConnectionFactory.CreateTransient();
 			Context = new DashboardDataContext(connection, true);
-			TestDataLoader.LoadData(Context);
+			TestDataLoader.LoadData(new DashboardDataContext(connection, false));
 		}
 
 		[TestCleanup]
@@ -131,8 +131,6 @@ namespace UnitTests
 		{
 			IRepository userRepo = new Repository(Context);
 
-			userRepo.Query<User>().ToList(); // Load everything!
-			
 			var user = new User
 			{
 				ID = 4,
@@ -153,7 +151,6 @@ namespace UnitTests
 			IRepository userRepo = new Repository(Context);
 
 			var results = userRepo.Query<User>().Any();
-
 
 			Assert.IsTrue(results);
 		}
