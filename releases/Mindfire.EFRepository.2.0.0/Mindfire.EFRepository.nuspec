@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata>
+    <id>Mindfire.EFRepository</id>
+    <version>2.0.0</version>
+    <title>EF Repository</title>
+    <authors>Nate Zaugg</authors>
+    <owners>Mindfire Technology</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <projectUrl>https://github.com/MindfireTechnology/EFRepository</projectUrl>
+    <iconUrl>https://avatars3.githubusercontent.com/u/13372702?v=3&amp;s=200</iconUrl>
+    <description>EFRepository allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</description>
+    <summary>Allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</summary>
+    <copyright>2020</copyright>
+    <tags>EF, EntityFramework, Entity Framework, Repository Pattern</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.5.2">
+        <dependency id="EntityFramework" version="6.1.3" />
+      </group>
+      <group targetFramework=".NETStandard1.4">
+        <dependency id="Microsoft.EntityFrameworkCore" version="1.1.1" exclude="Build,Analyzers" />
+        <dependency id="NETStandard.Library" version="1.6.1" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.EntityFrameworkCore" version="2.2.6" exclude="Build,Analyzers" />
+        <dependency id="NETStandard.Library" version="2.0.3" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETCoreApp3.0">
+        <dependency id="Microsoft.EntityFrameworkCore" version="3.0.0" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+</package>

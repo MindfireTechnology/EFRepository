@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EFRepository</name>
+    </assembly>
+    <members>
+        <member name="T:EFRepository.IRepository">
+            <summary>
+            Interface for interacting with data storage through the repository pattern
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+        </member>
+        <member name="E:EFRepository.IRepository.ItemAdded">
+            <summary>Event that fires when an item is added</summary>
+        </member>
+        <member name="E:EFRepository.IRepository.ItemModified">
+            <summary>Event that fires when an itemis modified</summary>
+        </member>
+        <member name="E:EFRepository.IRepository.ItemDeleted">
+            <summary>Event that fires when an item is deleted</summary>
+        </member>
+        <member name="M:EFRepository.IRepository.Query``1">
+            <summary>Queriable Entity</summary>
+        </member>
+        <member name="M:EFRepository.IRepository.Join``1">
+            <summary>
+            Join another entity
+            </summary>
+            <typeparam name="TEntity"></typeparam>
+            <returns></returns>
+        </member>
+        <member name="M:EFRepository.IRepository.FindOne``1(System.Object[])">
+            <summary>
+            Find an entity based on key(s)
+            </summary>
+            <param name="keys">The key(s) for the table</param>
+            <returns>Entity if found, otherwise null</returns>
+        </member>
+        <member name="M:EFRepository.IRepository.FindOneAsync``1(System.Object[])">
+            <summary>
+            Find an entity based on key(s)
+            </summary>
+            <param name="keys">The key(s) for the table</param>
+            <returns>Entity if found, otherwise null</returns>
+        </member>
+        <member name="M:EFRepository.IRepository.AddNew``1(``0[])">
+            <summary>
+            Add or update entities
+            </summary>
+            <param name="values">Entities to add</param>
+        </member>
+        <member name="M:EFRepository.IRepository.AddOrUpdate``1(``0[])">
+            <summary>
+            Add or update entities
+            </summary>
+            <param name="values">Entities to add</param>
+        </member>
+        <member name="M:EFRepository.IRepository.AddOrUpdate``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Add or update entities
+            </summary>
+            <param name="collection">Entities to add</param>
+        </member>
+        <member name="M:EFRepository.IRepository.DeleteOne``1(System.Object[])">
+            <summary>
+            Delete a single entity by key(s)
+            </summary>
+            <param name="keys">The key(s) for the table</param>
+        </member>
+        <member name="M:EFRepository.IRepository.Delete``1(``0[])">
+            <summary>
+            Delete one or more entities
+            </summary>
+            <param name="values">Entities to delete</param>
+        </member>
+        <member name="M:EFRepository.IRepository.Delete``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Delete one or more entities
+            </summary>
+            <param name="collection">Entities to delete</param>
+        </member>
+        <member name="M:EFRepository.IRepository.Save">
+            <summary>
+            Save pending changes for the collection
+            </summary>
+            <returns>Number of affected entities</returns>
+        </member>
+        <member name="M:EFRepository.IRepository.SaveAsync">
+            <summary>
+            Save pending changes for the collection async
+            </summary>
+            <returns>Number of affected entities</returns>
+        </member>
+        <member name="M:EFRepository.IRepository.SaveAsync(System.Threading.CancellationToken)">
+            <summary>
+            Save pending changes for the collection async with cancellation
+            </summary>
+            <param name="cancellationToken">Cancelation Token</param>
+            <returns>Number of affected entities</returns>
+        </member>
+    </members>
+</doc>
