@@ -52,6 +52,23 @@ namespace UnitTests
 
 
 			Assert.IsNotNull(user);
+			
+			/* FireMap -- Object Mapper -- More Stable
+			 * 
+			 * var query = await repo.Query<User>()
+			 *			.ByUsername()
+			 *			.ByFirstName()
+			 *			.ByLastName()
+			 *			...
+			 *			.ByActive()
+			 *			.ByRole("Admin")
+			 *			.ToListAsync();
+			 * 
+			 */
+
+			// IQueryable<Task> ByProjectId(this IQueryable<Task> query, params int[] projectIds) // params OR/IN
+
+
 		}
 
 		[TestMethod]
@@ -73,12 +90,15 @@ namespace UnitTests
 		{
 			IRepository userRepo = new Repository(Context);
 
-			var user = userRepo.Query<User>().Where(n => n.FirstName == "Lavender").FirstOrDefault();
+			var user = userRepo.Query<User>()
+				.Where(n => n.FirstName == "Lavender").FirstOrDefault();
 			user.LastName = "Zaugg";
 
 			userRepo.AddOrUpdate(user);
+			
 
 			Assert.AreEqual(1, userRepo.Save());
+
 		}
 
 		[TestMethod]

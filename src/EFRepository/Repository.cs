@@ -15,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 #endif
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 namespace EFRepository
 {
 	public class Repository : IRepository
@@ -22,20 +23,15 @@ namespace EFRepository
 		protected DbContext DataContext;
 		protected bool OwnsDataContext;
 
-		//protected DbSet<TEntity> InternalSet;
-		//protected PropertyInfo[] KeyProperties;
-
-		public event Action<object> ItemAdded;
-		public event Action<object> ItemModified;
-		public event Action<object> ItemDeleted;
+		public event Action<object> ItemAdding;
+		public event Action<object> ItemModifing;
+		public event Action<object> ItemDeleting;
 
 		public Repository(DbContext context, bool ownsDataContext = true)
 		{
 			DataContext = context ?? throw new ArgumentNullException(nameof(context));
 
 			OwnsDataContext = ownsDataContext;
-			//InternalSet = DataContext.Set<TEntity>();
-			//SetupKeyProperty();
 		}
 
 		public virtual IQueryable<TEntity> Query<TEntity>() where TEntity : class, new()
@@ -64,7 +60,7 @@ namespace EFRepository
 			foreach (var entity in values ?? throw new ArgumentNullException(nameof(values)))
 			{
 				DataContext.Set<TEntity>().Add(entity);
-				ItemAdded?.Invoke(entity);
+				ItemAdding?.Invoke(entity);
 			}
 		}
 
@@ -81,7 +77,7 @@ namespace EFRepository
 				if (IsNew(entity))
 				{
 					DataContext.Set<TEntity>().Add(entity);
-					ItemAdded?.Invoke(entity);
+					ItemAdding?.Invoke(entity);
 				}
 				else
 				{
@@ -93,7 +89,7 @@ namespace EFRepository
 					}
 					
 					entry.State = EntityState.Modified;
-					ItemModified?.Invoke(entity);
+					ItemModifing?.Invoke(entity);
 				}
 			}
 		}
@@ -105,7 +101,7 @@ namespace EFRepository
 			var entry = GetEntryByKey(value);
 			entry.State = EntityState.Deleted;
 
-			ItemDeleted?.Invoke(value);
+			ItemDeleting?.Invoke(value);
 		}
 
 		public virtual void Delete<TEntity>(params TEntity[] values) where TEntity : class, new()
@@ -118,7 +114,7 @@ namespace EFRepository
 			foreach (var entity in collection)
 			{
 				DataContext.Set<TEntity>().Remove(entity);
-				ItemDeleted?.Invoke(entity);
+				ItemDeleting?.Invoke(entity);
 			}
 		}
 
@@ -243,5 +239,61 @@ namespace EFRepository
 
 			return false;
 		}
+
+		public void StartTransaction(System.Data.IsolationLevel isolation)
+		{
+			throw new NotImplementedException();
+#if DOTNETFULL
+			DataContext.Database.BeginTransaction(isolation);
+#else
+			DataContext.Database.BeginTransaction();
+#endif
+		}
+
+		public void StartTransactionAsync(System.Data.IsolationLevel isolation, CancellationToken cancellationToken = default)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void StartTransaction()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void StartTransactionAsync(CancellationToken cancellationToken = default)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void CommitTransaction()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void CommitTransactionAsync(CancellationToken cancellationToken = default)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RollbackTransaction()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void RollbackTransactionAsync(CancellationToken cancellationToken = default)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void EnlistTransaction(System.Data.IDbTransaction transaction)
+		{
+			throw new NotImplementedException();
+		}
+
+		public System.Data.IDbTransaction GetCurrentTransaction()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

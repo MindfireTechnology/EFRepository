@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -10,7 +10,7 @@ namespace MindfireClientDashboard.Data
 {
 	public class User
 	{
-		[Column("UserID")]
+		[Key, Column("UserID")]
 		public int ID { get; set; }
 
 		public string FirstName { get; set; }
