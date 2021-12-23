@@ -1,0 +1,62 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<LangVersion>10.0</LangVersion>
+
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<AssemblyName>EFRepository.Generator</AssemblyName>
+		<RootNamespace>EFRepository.Generator</RootNamespace>
+		<Version>1.0.1-alpha2</Version>
+		<Description>Source generator that creates filter methods automatically for IQueryable operations</Description>
+		<PackageTags>CodeGenerators, repository, EntityFramework, Mindfire</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/MindfireTechnology/EFRepository</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/MindfireTechnology/EFRepository</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<Authors>Dan Beus</Authors>
+		<Company>Mindfire Technology</Company>
+		<AssemblyVersion>1.0.0.1</AssemblyVersion>
+		<FileVersion>1.0.0.1</FileVersion>
+		<PackageId>Mindfire.EFRepository.Generator</PackageId>
+		<Product>Mindfire.EFRepository.Generator</Product>
+		<PackageReleaseNotes>Initial testing release</PackageReleaseNotes>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<IncludeSymbols>true</IncludeSymbols>
+		<PackageIcon>Logo.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="bin\**" />
+		<EmbeddedResource Remove="bin\**" />
+		<None Remove="bin\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="tools\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="D:\Repositories\EFRepository.Generator\Source\EFRepository.Generator\bin\Release\netstandard2.0\EFRepository.Generator.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(TargetPath)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="..\..\Resources\Logo.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+</Project>

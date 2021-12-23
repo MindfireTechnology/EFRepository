@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
-#if DOTNETFULL
+#if NET45_OR_GREATER || NET452_OR_GREATER || NET452
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity;
 #else
@@ -87,7 +87,7 @@ namespace EFRepository
 					{
 						throw new NotSupportedException("A different entity object with the same key already exists in the ChangeTracker");
 					}
-					
+
 					entry.State = EntityState.Modified;
 					ItemModifing?.Invoke(entity);
 				}
@@ -121,7 +121,7 @@ namespace EFRepository
 		public virtual int Save()
 		{
 			CheckDetectChanges();
-			
+
 			return DataContext.SaveChanges();
 		}
 
@@ -190,7 +190,7 @@ namespace EFRepository
 			return result;
 		}
 
-#if DOTNETFULL
+#if NET45_OR_GREATER
 		public virtual DbEntityEntry<TEntity> GetEntryByKey<TEntity>(TEntity entity)  where TEntity : class, new()
 #else
 		public EntityEntry<TEntity> GetEntryByKey<TEntity>(TEntity entity) where TEntity : class, new()
