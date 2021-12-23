@@ -7,6 +7,7 @@
 		<LangVersion>10.0</LangVersion>
 
 		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<RestoreProjectStyle>PackageReference</RestoreProjectStyle>
 
 		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<AssemblyName>EFRepository.Generator</AssemblyName>
@@ -55,8 +56,8 @@
 	<ItemGroup>
 		<None Include="$(TargetPath)" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<None Include="..\..\Resources\Logo.png">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
 </Project>

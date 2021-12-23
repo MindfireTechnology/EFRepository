@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.ComponentModel;
 
-#if NET45_OR_GREATER || NET452_OR_GREATER || NET452
+#if NET45_OR_GREATER
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity;
 #else
@@ -141,7 +141,7 @@ namespace EFRepository
 
 		protected virtual void CheckDetectChanges()
 		{
-#if DOTNETFULL
+#if NET45_OR_GREATER
 			if(!DataContext.Configuration.AutoDetectChangesEnabled && DataContext.Configuration.ProxyCreationEnabled)
 #else
 			if (!DataContext.ChangeTracker.AutoDetectChangesEnabled && DataContext.ChangeTracker.QueryTrackingBehavior == QueryTrackingBehavior.NoTracking)

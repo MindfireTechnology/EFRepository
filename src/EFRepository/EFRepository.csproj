@@ -32,36 +32,48 @@
 		<Reference Include="System">
 			<HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Transactions.dll</HintPath>
 		</Reference>
+		<ProjectReference Include="..\EFRepository.Generator\EFRepository.Generator.csproj" PrivateAssets="contentfiles;build" />
+		<None Include="..\EFRepository.Generator\$(OutDir)\EFRepository.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>2.2.6</Version>
 		</PackageReference>
+		<ProjectReference Include="..\EFRepository.Generator\EFRepository.Generator.csproj" PrivateAssets="contentfiles;build" />
+		<None Include="..\EFRepository.Generator\$(OutDir)\EFRepository.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>3.1.22</Version>
 		</PackageReference>
+		<ProjectReference Include="..\EFRepository.Generator\EFRepository.Generator.csproj" PrivateAssets="contentfiles;build" />
+		<None Include="..\EFRepository.Generator\$(OutDir)\EFRepository.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>3.1.22</Version>
 		</PackageReference>
+		<ProjectReference Include="..\EFRepository.Generator\EFRepository.Generator.csproj" PrivateAssets="contentfiles;build" />
+		<None Include="..\EFRepository.Generator\$(OutDir)\EFRepository.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>5.0.13</Version>
 		</PackageReference>
+		<ProjectReference Include="..\EFRepository.Generator\EFRepository.Generator.csproj" PrivateAssets="contentfiles;build" />
+		<None Include="..\EFRepository.Generator\$(OutDir)\EFRepository.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>6.0.1</Version>
 		</PackageReference>
+		<ProjectReference Include="..\EFRepository.Generator\EFRepository.Generator.csproj" PrivateAssets="contentfiles;build" />
+		<None Include="..\EFRepository.Generator\$(OutDir)\EFRepository.Generator.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net452'">

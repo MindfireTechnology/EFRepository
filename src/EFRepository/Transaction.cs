@@ -3,7 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+#if NETSTANDARD1_4
 using System.Transactions;
+#else
+using System.Transactions;
+#endif
 
 namespace EFRepository
 {
