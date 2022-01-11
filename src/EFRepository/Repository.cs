@@ -34,10 +34,7 @@ namespace EFRepository
 			OwnsDataContext = ownsDataContext;
 		}
 
-		public virtual IQueryable<TEntity> Query<TEntity>() where TEntity : class, new()
-		{
-			return DataContext.Set<TEntity>();
-		}
+		public virtual IQueryable<TEntity> Query<TEntity>() where TEntity : class, new() => DataContext.Set<TEntity>();
 
 		public virtual IQueryable<TEntity> Join<TEntity>() where TEntity : class, new()
 		{
@@ -181,7 +178,7 @@ namespace EFRepository
 			if (keyProperties.Length != keyValues.Length)
 				throw new ArgumentOutOfRangeException(nameof(keyValues), $"Expected {keyProperties.Length} values, but got {keyValues?.Length ?? 0} instead.");
 
-			TEntity result = new TEntity();
+			var result = new TEntity();
 			for (int index = 0; index < keyProperties.Length; index++)
 			{
 				keyProperties[index].SetValue(result, keyValues[index]);
@@ -238,61 +235,6 @@ namespace EFRepository
 			}
 
 			return false;
-		}
-
-		public void StartTransaction(System.Data.IsolationLevel isolation)
-		{
-			throw new NotImplementedException();
-#if DOTNETFULL
-			DataContext.Database.BeginTransaction(isolation);
-#else
-			DataContext.Database.BeginTransaction();
-#endif
-		}
-
-		public void StartTransactionAsync(System.Data.IsolationLevel isolation, CancellationToken cancellationToken = default)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void StartTransaction()
-		{
-			throw new NotImplementedException();
-		}
-
-		public void StartTransactionAsync(CancellationToken cancellationToken = default)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void CommitTransaction()
-		{
-			throw new NotImplementedException();
-		}
-
-		public void CommitTransactionAsync(CancellationToken cancellationToken = default)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void RollbackTransaction()
-		{
-			throw new NotImplementedException();
-		}
-
-		public void RollbackTransactionAsync(CancellationToken cancellationToken = default)
-		{
-			throw new NotImplementedException();
-		}
-
-		public void EnlistTransaction(System.Data.IDbTransaction transaction)
-		{
-			throw new NotImplementedException();
-		}
-
-		public System.Data.IDbTransaction GetCurrentTransaction()
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

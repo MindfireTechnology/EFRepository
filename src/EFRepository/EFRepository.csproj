@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0;net5.0;netstandard2.0;netstandard2.1;netcoreapp3.0;net452</TargetFrameworks>
@@ -11,7 +11,7 @@
 		<Company>Mindfire Technology</Company>
 		<Product>Mindfire EFRepository</Product>
 		<Description>EFRepository allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</Description>
-		<Copyright>2017</Copyright>
+		<Copyright>2021</Copyright>
 		<PackageProjectUrl>https://github.com/MindfireTechnology/EFRepository</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/MindfireTechnology/EFRepository</RepositoryUrl>
 		<PackageTags>EF, EntityFramework, Entity Framework, Core, NetStandard, Repository Pattern</PackageTags>
@@ -22,12 +22,15 @@
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 		<PackageIcon>Logo.png</PackageIcon>
 		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>1.1.6</Version>
 		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 
 		<Reference Include="System">
 			<HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Transactions.dll</HintPath>
@@ -38,30 +41,35 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>2.2.6</Version>
 		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>3.1.22</Version>
 		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>3.1.22</Version>
 		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>5.0.13</Version>
 		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net6.0'">
 		<PackageReference Include="Microsoft.EntityFrameworkCore">
 			<Version>6.0.1</Version>
 		</PackageReference>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net452'">
@@ -90,4 +98,10 @@
 		<!--<ProjectReference Include="..\EFRepository.Generator\EFRepository.Generator.csproj" />-->
 		<None Include="..\EFRepository.Generator\bin\$(Configuration)\netstandard2.0\EFRepository.Generator.dll" Pack="True" PackagePath="analyzers\dotnet\cs" Visible="false" />
 	</ItemGroup>
+	<!--<Target Name="PostBuild" AfterTargets="PostBuildEvent" Condition="'$(Configuration)' == 'Release'">
+		<GetAssemblyIdentity AssemblyFiles="$(TargetPath)">
+			<Output TaskParameter="Assemblies" ItemName="CurrentAssembly" />
+		</GetAssemblyIdentity>
+		<Exec Command="copy $(ProjectDir)bin\Release\Mindfire.EFRepository.%(CurrentAssembly.Version).nupkg $(ProjectDir)..\..\releases" />
+	</Target>-->
 </Project>
