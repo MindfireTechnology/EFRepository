@@ -7,7 +7,7 @@
 
 	<PropertyGroup>
 		<PackageId>Mindfire.EFRepository</PackageId>
-		<Version>2.0.0-alpha4</Version>
+		<Version>2.0.0-alpha5</Version>
 		<Company>Mindfire Technology</Company>
 		<Product>Mindfire EFRepository</Product>
 		<Description>EFRepository allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</Description>
@@ -15,7 +15,7 @@
 		<PackageProjectUrl>https://github.com/MindfireTechnology/EFRepository</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/MindfireTechnology/EFRepository</RepositoryUrl>
 		<PackageTags>EF, EntityFramework, Entity Framework, Core, NetStandard, Repository Pattern</PackageTags>
-		<PackageReleaseNotes>Added source generator to add helper methods for classes in the DbContext</PackageReleaseNotes>
+		<PackageReleaseNotes>Updated to use the latest version of EFRepository in the package.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Nate Zaugg, Dan Beus</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

@@ -11,7 +11,7 @@ namespace EFRepository
 	/// Interface for interacting with data storage through the repository pattern
 	/// </summary>
 	/// <typeparam name="TEntity"></typeparam>
-	public interface IRepository : IDisposable 
+	public interface IRepository : IDisposable
 	{
 
 		/// <summary>Event that fires when an item is added</summary>
