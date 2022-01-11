@@ -100,7 +100,7 @@ using System.Linq;
 
 namespace {dbSetClass.ContainingNamespace}
 {{
-	public static class {dbSetClass.Name}Extensions
+	public static partial class {dbSetClass.Name}Extensions
 	{{
 ");
 
@@ -167,7 +167,9 @@ namespace {dbSetClass.ContainingNamespace}
 			}
 			else if (type.Equals(dateTimeSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine($@"/// <summary>Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is after {member.Name}</summary>
+				builder.AppendLine($@"		/// <summary>
+		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is after {member.Name}
+		/// </summary>
 		/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be before</param>
 		public static IQueryable<{dbSetClass}> Where{member.Name}IsBefore(this IQueryable<{dbSetClass.Name}> queryable, DateTime value)
 		{{
@@ -177,7 +179,9 @@ namespace {dbSetClass.ContainingNamespace}
 			return queryable.Where(n => n.{member.Name} < value);
 		}}");
 
-				builder.AppendLine($@"		/// <summary>Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is before {member.Name}</summary>
+				builder.AppendLine($@"		/// <summary>
+		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is before {member.Name}
+		/// </summary>
 		/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be before</param>
 		public static IQueryable<{dbSetClass}> Where{member.Name}IsAfter(this IQueryable<{dbSetClass.Name}> queryable, DateTime value)
 		{{
@@ -187,7 +191,9 @@ namespace {dbSetClass.ContainingNamespace}
 			return queryable.Where(n => n.{member.Name} > value);
 		}}");
 
-				builder.AppendLine($@"		/// <summary>Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
+				builder.AppendLine($@"		/// <summary>
+		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
+		/// </summary>
 		/// <param name=""start"">The <see cref=""DateTime""/> that should be before {member.Name}</param>
 		/// <param name=""end"">The <see cref=""DateTime""/> that should be after {member.Name}</param>
 		public static IQueryable<{dbSetClass}> Where{member.Name}IsBetween(this IQueryable<{dbSetClass.Name}> queryable, DateTime start, DateTime end)
@@ -208,8 +214,10 @@ namespace {dbSetClass.ContainingNamespace}
 
 		string CreateMethod(string type, string memberName)
 		{
-			return $@"		///<summary>Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName}</summary>
-		<param name=""value"">The {type} that {memberName} should be equal to</param>
+			return $@"		/// <summary>
+		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName}
+		/// </summary>
+		/// <param name=""value"">The {type} that {memberName} should be equal to</param>
 		public static IQueryable<{dbSetClass.Name}> By{memberName}(this IQueryable<{dbSetClass.Name}> queryable, {type} value)
 		{{
 			if (queryable == null)

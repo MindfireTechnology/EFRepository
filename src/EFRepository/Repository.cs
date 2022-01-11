@@ -34,13 +34,10 @@ namespace EFRepository
 			OwnsDataContext = ownsDataContext;
 		}
 
-		public virtual IQueryable<TEntity> Query<TEntity>() where TEntity : class, new() => DataContext.Set<TEntity>();
-
-		public virtual IQueryable<TEntity> Join<TEntity>() where TEntity : class, new()
+		public virtual IQueryable<TEntity> Query<TEntity>() where TEntity : class, new()
 		{
-			throw new NotImplementedException();
+			return DataContext.Set<TEntity>();
 		}
-
 
 		public virtual TEntity FindOne<TEntity>(params object[] keys) where TEntity : class, new()
 		{

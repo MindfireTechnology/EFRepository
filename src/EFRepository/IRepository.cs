@@ -28,13 +28,6 @@ namespace EFRepository
 		IQueryable<TEntity> Query<TEntity>() where TEntity : class, new();
 
 		/// <summary>
-		/// Join another entity
-		/// </summary>
-		/// <typeparam name="TEntity"></typeparam>
-		/// <returns></returns>
-		IQueryable<TEntity> Join<TEntity>() where TEntity : class, new();
-
-		/// <summary>
 		/// Find an entity based on key(s)
 		/// </summary>
 		/// <param name="keys">The key(s) for the table</param>

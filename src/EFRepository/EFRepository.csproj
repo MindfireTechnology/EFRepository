@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0;net5.0;netstandard2.0;netstandard2.1;netcoreapp3.0;net452</TargetFrameworks>
@@ -7,7 +7,7 @@
 
 	<PropertyGroup>
 		<PackageId>Mindfire.EFRepository</PackageId>
-		<Version>2.0.0-alpha5</Version>
+		<Version>2.0.0</Version>
 		<Company>Mindfire Technology</Company>
 		<Product>Mindfire EFRepository</Product>
 		<Description>EFRepository allows you to use a LINQ-Enabled version of the Repository Pattern for Entity Framework</Description>
@@ -15,7 +15,8 @@
 		<PackageProjectUrl>https://github.com/MindfireTechnology/EFRepository</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/MindfireTechnology/EFRepository</RepositoryUrl>
 		<PackageTags>EF, EntityFramework, Entity Framework, Core, NetStandard, Repository Pattern</PackageTags>
-		<PackageReleaseNotes>Updated to use the latest version of EFRepository in the package.</PackageReleaseNotes>
+		<PackageReleaseNotes>Updated the interface to allow for using a single repository objects for multiple different types.
+Updated to include a source generator that creates helper methods for filtering by object properties.</PackageReleaseNotes>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Authors>Nate Zaugg, Dan Beus</Authors>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -24,6 +25,14 @@
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net6.0|AnyCPU'">
+	  <WarningLevel>5</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net6.0|AnyCPU'">
+	  <WarningLevel>5</WarningLevel>
 	</PropertyGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.4'">
