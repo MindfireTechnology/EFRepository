@@ -42,20 +42,50 @@ namespace EFRepository.Generator.IntegrationTests
 			user.ShouldNotBeNull();
 			user.Score.ShouldBe(3.333);
 
-			var filteredUsers = usersQueryable.WhereCreatedIsAfter(now.AddHours(-5.5));
+			var filteredUsers = usersQueryable.ByCreatedIsAfter(now.AddHours(-5.5));
 
 			filteredUsers.ShouldNotBeNull();
 			filteredUsers.Count().ShouldBe(5);
 
-			filteredUsers = usersQueryable.WhereCreatedIsBefore(now.AddHours(-5.5));
+			filteredUsers = usersQueryable.ByCreatedOnDate(now);
+			filteredUsers.ShouldNotBeNull();
+
+			filteredUsers = usersQueryable.ByCreatedIsBefore(now.AddHours(-5.5));
 
 			filteredUsers.ShouldNotBeNull();
 			filteredUsers.Count().ShouldBe(5);
 
-			filteredUsers = usersQueryable.WhereCreatedIsBetween(start: now.AddHours(-5.5), end: now.AddHours(-2.5));
+			filteredUsers = usersQueryable.ByCreatedBetween(start: now.AddHours(-5.5), end: now.AddHours(-2.5));
 
 			filteredUsers.ShouldNotBeNull();
 			filteredUsers.Count().ShouldBe(3);
+
+			// String functions
+			usersQueryable.ByAddress("1 Fake St.")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(1);
+
+			usersQueryable.ByAddressStartsWith("1")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(2);
+
+			usersQueryable.ByAddressEndsWith("St.")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(10);
+
+			usersQueryable.ByAddressContains("Fake")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(10);
+
+			usersQueryable.ByAddressIsNotNull()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(10);
+
+			usersQueryable.ByAddressIsNull()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(0);
+
+
 		}
 	}
 }

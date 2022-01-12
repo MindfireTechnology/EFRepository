@@ -7,7 +7,10 @@ namespace EFRepository.Generator;
 public class ExtensionMethodGenerator : ISourceGenerator
 {
 
-	public void Initialize(GeneratorInitializationContext context) => context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
+	public void Initialize(GeneratorInitializationContext context)
+	{
+		context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
+	}
 
 	public void Execute(GeneratorExecutionContext context)
 	{
@@ -49,8 +52,12 @@ public class ExtensionMethodGenerator : ISourceGenerator
 			};
 		})
 		.Where(c => c != null)
-		.Where(c => c.Symbol != null && c.Symbol.ContainingSymbol.Equals(c.Symbol.ContainingNamespace, SymbolEqualityComparer.Default)
-					&& c.Symbol.BaseType.Equals(dbContextSymbol, SymbolEqualityComparer.Default));
+		.Where(c =>
+			c != null &&
+			c.Symbol != null &&
+			c.Symbol.ContainingSymbol.Equals(c.Symbol.ContainingNamespace, SymbolEqualityComparer.Default) &&
+			c.Symbol.BaseType != null && c.Symbol.BaseType.Equals(dbContextSymbol, SymbolEqualityComparer.Default));
+
 		// TODO: Need to check that this is actually a DbContext class
 
 		var extensions = dbContexts.SelectMany(dbc => ProcessDbContext(dbc, dbSetSymbol, compilation));
@@ -94,12 +101,13 @@ public class ExtensionMethodGenerator : ISourceGenerator
 	{
 		string fileName = $"{dbSetClass.Name}.EFExtensions.g.cs";
 
-		var builder = new StringBuilder($@"
-using System;
+		var builder = new StringBuilder(
+$@"using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
-namespace {dbSetClass.ContainingNamespace}
-{{
+namespace {dbSetClass.ContainingNamespace};
+
 	public static partial class {dbSetClass.Name}Extensions
 	{{
 ");
@@ -112,6 +120,7 @@ namespace {dbSetClass.ContainingNamespace}
 		var floatSymbol = compilation.GetTypeByMetadataName("System.Single");
 		var doubleSymbol = compilation.GetTypeByMetadataName("System.Double");
 		var decimalSymbol = compilation.GetTypeByMetadataName("System.Decimal");
+		var stringSymbol = compilation.GetTypeByMetadataName("System.String");
 		var dateTimeSymbol = compilation.GetTypeByMetadataName("System.DateTime");
 
 		var members = dbSetClass.GetMembers()
@@ -121,110 +130,252 @@ namespace {dbSetClass.ContainingNamespace}
 		foreach (var member in members)
 		{
 			ITypeSymbol type;
+			bool nullable;
 
 			if (member.Kind is SymbolKind.Property)
 			{
 				var property = (IPropertySymbol)member;
 				type = property.Type;
+				nullable = property.NullableAnnotation == NullableAnnotation.Annotated;
 			}
 			else
 			{
 				var field = (IFieldSymbol)member;
 				type = field.Type;
+				nullable = field.NullableAnnotation == NullableAnnotation.Annotated;
 			}
 
 			if (type.Equals(boolSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("bool", member.Name));
+				builder.AppendLine(CreateMethod("bool", member.Name, nullable));
 			}
 			else if (type.Equals(byteSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("byte", member.Name));
+				builder.AppendLine(CreateMethod("byte", member.Name, nullable));
 			}
 			else if (type.Equals(shortSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("short", member.Name));
+				builder.AppendLine(CreateMethod("short", member.Name, nullable));
 			}
 			else if (type.Equals(intSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("int", member.Name));
+				builder.AppendLine(CreateMethod("int", member.Name, nullable));
 			}
 			else if (type.Equals(longSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("long", member.Name));
+				builder.AppendLine(CreateMethod("long", member.Name, nullable));
 			}
 			else if (type.Equals(floatSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("float", member.Name));
+				builder.AppendLine(CreateMethod("float", member.Name, nullable));
 			}
 			else if (type.Equals(doubleSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("double", member.Name));
+				builder.AppendLine(CreateMethod("double", member.Name, nullable));
 			}
 			else if (type.Equals(decimalSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine(CreateMethod("decimal", member.Name));
+				builder.AppendLine(CreateMethod("decimal", member.Name, nullable));
+			}
+			else if (type.Equals(stringSymbol, SymbolEqualityComparer.Default))
+			{
+				builder.AppendLine(CreateNullMethodFunctions(member.Name));
+
+				builder.AppendLine($@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name}
+	/// </summary>
+	/// <param name=""value"">The {type} which {member.Name} should be equal</param>
+	public static IQueryable<{dbSetClass.Name}> By{member.Name}(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+	{{
+		if (query == null)
+			return query;
+
+		if (string.IsNullOrWhiteSpace(value))
+			return query;
+
+		return query.Where(n => n.{member.Name} == value);
+	}}");
+
+				builder.AppendLine($@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} contains a value
+	/// </summary>
+	/// <param name=""value"">The {type} which {member.Name} should contain</param>
+	public static IQueryable<{dbSetClass.Name}> By{member.Name}Contains(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+	{{
+		if (query == null)
+			return query;
+
+		if (string.IsNullOrWhiteSpace(value))
+			return query;
+
+		return query.Where(n => n.{member.Name}.Contains(value));
+	}}");
+
+				builder.AppendLine($@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} starts with a value
+	/// </summary>
+	/// <param name=""value"">The {type} which {member.Name} should start with</param>
+	public static IQueryable<{dbSetClass.Name}> By{member.Name}StartsWith(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+	{{
+		if (query == null)
+			return query;
+
+		if (string.IsNullOrWhiteSpace(value))
+			return query;
+
+		return query.Where(n => n.{member.Name}.StartsWith(value));
+	}}");
+
+				builder.AppendLine($@"
+
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} ends with a value
+	/// </summary>
+	/// <param name=""value"">The {type} which {member.Name} should end with</param>
+	public static IQueryable<{dbSetClass.Name}> By{member.Name}EndsWith(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+	{{
+		if (query == null)
+			return query;
+
+		if (string.IsNullOrWhiteSpace(value))
+			return query;
+
+		return query.Where(n => n.{member.Name}.EndsWith(value));
+	}}");
+
 			}
 			else if (type.Equals(dateTimeSymbol, SymbolEqualityComparer.Default))
 			{
-				builder.AppendLine($@"		/// <summary>
-		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is after {member.Name}
-		/// </summary>
-		/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be before</param>
-		public static IQueryable<{dbSetClass}> Where{member.Name}IsBefore(this IQueryable<{dbSetClass.Name}> queryable, DateTime value)
-		{{
-			if (queryable == null)
-				return queryable;
+				builder.AppendLine(CreateMethod("DateTime", member.Name, nullable));
 
-			return queryable.Where(n => n.{member.Name} < value);
-		}}");
+				builder.AppendLine($@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is after {member.Name}
+	/// </summary>
+	/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be before</param>
+	public static IQueryable<{dbSetClass}> By{member.Name}IsBefore(this IQueryable<{dbSetClass.Name}> query, DateTime? value)
+	{{
+		if (query == null)
+			return query;
 
-				builder.AppendLine($@"		/// <summary>
-		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is before {member.Name}
-		/// </summary>
-		/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be before</param>
-		public static IQueryable<{dbSetClass}> Where{member.Name}IsAfter(this IQueryable<{dbSetClass.Name}> queryable, DateTime value)
-		{{
-			if (queryable == null)
-				return queryable;
+		if (value == null)
+			return query;
 
-			return queryable.Where(n => n.{member.Name} > value);
-		}}");
+		return query.Where(n => n.{member.Name} < value);
+	}}");
 
-				builder.AppendLine($@"		/// <summary>
-		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
-		/// </summary>
-		/// <param name=""start"">The <see cref=""DateTime""/> that should be before {member.Name}</param>
-		/// <param name=""end"">The <see cref=""DateTime""/> that should be after {member.Name}</param>
-		public static IQueryable<{dbSetClass}> Where{member.Name}IsBetween(this IQueryable<{dbSetClass.Name}> queryable, DateTime start, DateTime end)
-		{{
-			if (queryable == null)
-				return queryable;
+				builder.AppendLine($@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is after {member.Name}
+	/// </summary>
+	/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be after</param>
+	public static IQueryable<{dbSetClass}> By{member.Name}IsAfter(this IQueryable<{dbSetClass.Name}> query, DateTime? value)
+	{{
+		if (query == null)
+			return query;
 
-			return queryable.Where(n => n.{member.Name} > start && n.{member.Name} < end);
-		}}");
+		if (value == null)
+			return query;
+
+		return query.Where(n => n.{member.Name} > value);
+	}}");
+
+				builder.AppendLine($@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
+	/// </summary>
+	/// <param name=""start"">The <see cref=""DateTime""/> that should be before {member.Name}</param>
+	/// <param name=""end"">The <see cref=""DateTime""/> that should be after {member.Name}</param>
+	public static IQueryable<{dbSetClass}> By{member.Name}Between(this IQueryable<{dbSetClass.Name}> query, DateTime? start, DateTime? end)
+	{{
+		if (query == null)
+			return query;
+
+		if (start != null)
+			query = query.Where(n => n.{member.Name} > start);
+
+		if (end != null)
+			query = query.Where(n => n.{member.Name} < end);
+
+		return query;
+	}}");
+
+				builder.AppendLine($@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
+	/// </summary>
+	/// <param name=""value"">The <see cref=""DateTime""/> that should the same date as {member.Name}, excluding time</param>
+	public static IQueryable<{dbSetClass}> By{member.Name}OnDate(this IQueryable<{dbSetClass.Name}> query, DateTime? value)
+	{{
+		if (query == null)
+			return query;
+
+		if (value != null)
+			return query.Where(n => n.{member.Name}.Date > value.Value.Date);
+		else
+			return query;
+	}}");
 			}
-
 		}
 
-		builder.AppendLine("	}")
-		.AppendLine("}");
+		// Close Class
+		builder.AppendLine("}");
 
 		return (fileName, builder.ToString());
 
-		string CreateMethod(string type, string memberName)
+		string CreateMethod(string type, string memberName, bool nullable)
 		{
-			return $@"		/// <summary>
-		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName}
-		/// </summary>
-		/// <param name=""value"">The {type} that {memberName} should be equal to</param>
-		public static IQueryable<{dbSetClass.Name}> By{memberName}(this IQueryable<{dbSetClass.Name}> queryable, {type} value)
-		{{
-			if (queryable == null)
-				return queryable;
+			string result = $@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName}
+	/// </summary>
+	/// <param name=""value"">The {type} which should equal {memberName}</param>
+	public static IQueryable<{dbSetClass.Name}> By{memberName}(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+	{{
+		if (query == null)
+			return query;
 
-			return queryable.Where(n => n.{memberName} == value);
-		}}";
+		if (value == null)
+			return query;
+
+		return query.Where(n => n.{memberName} == value);
+	}}";
+
+			if (nullable)
+			{
+				result += CreateNullMethodFunctions(memberName);
+			}
+
+			return result;
+		}
+
+		string CreateNullMethodFunctions(string memberName)
+		{
+			return $@"
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName} is null
+	/// </summary>
+	public static IQueryable<{dbSetClass.Name}> By{memberName}IsNull(this IQueryable<{dbSetClass.Name}> query)
+	{{
+		if (query == null)
+			return query;
+
+		return query.Where(n => n.{memberName} == null);
+	}}
+
+	/// <summary>
+	/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName} is not null
+	/// </summary>
+	public static IQueryable<{dbSetClass.Name}> By{memberName}IsNotNull(this IQueryable<{dbSetClass.Name}> query)
+	{{
+		if (query == null)
+			return query;
+
+		return query.Where(n => n.{memberName} != null);
+	}}";
 		}
 	}
 }
