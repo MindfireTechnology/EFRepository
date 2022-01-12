@@ -10,8 +10,8 @@ namespace EFRepository.Generator.IntegrationTests
 	{
 		public int Id { get; set; }
 		public string Name { get; set; }
-		public string Phone { get; set; }
-		public string Address { get; set; }
+		public string? Phone { get; set; }
+		public string? Address { get; set; }
 		public DateTime Created { get; set; }
 		public bool IsDeleted { get; set; }
 		public double Score { get; set; }

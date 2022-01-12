@@ -105,6 +105,8 @@ $@"using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
+#nullable enable
+
 namespace {dbSetClass.ContainingNamespace}
 {{
 
@@ -183,10 +185,33 @@ namespace {dbSetClass.ContainingNamespace}
 
 				builder.AppendLine($@"
 		/// <summary>
+		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} is null
+		/// </summary>
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}IsNullOrWhiteSpace(this IQueryable<{dbSetClass.Name}> query)
+		{{
+			if (query == null)
+				return query;
+
+			return query.Where(n => string.IsNullOrWhiteSpace(n.{member.Name}));
+		}}
+
+		/// <summary>
+		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} is not null
+		/// </summary>
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}IsNotNullOrWhiteSpace(this IQueryable<{dbSetClass.Name}> query)
+		{{
+			if (query == null)
+				return query;
+
+			return query.Where(n => !string.IsNullOrWhiteSpace(n.{member.Name}));
+		}}");
+
+				builder.AppendLine($@"
+		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name}
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should be equal</param>
-		public static IQueryable<{dbSetClass.Name}> By{member.Name}(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
 			if (query == null)
 				return query;
@@ -202,7 +227,7 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} contains a value
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should contain</param>
-		public static IQueryable<{dbSetClass.Name}> By{member.Name}Contains(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}Contains(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
 			if (query == null)
 				return query;
@@ -210,7 +235,7 @@ namespace {dbSetClass.ContainingNamespace}
 			if (string.IsNullOrWhiteSpace(value))
 				return query;
 
-			return query.Where(n => n.{member.Name}.Contains(value));
+			return query.Where(n => n.{member.Name} != null && n.{member.Name}.Contains(value));
 		}}");
 
 				builder.AppendLine($@"
@@ -218,7 +243,7 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} starts with a value
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should start with</param>
-		public static IQueryable<{dbSetClass.Name}> By{member.Name}StartsWith(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}StartsWith(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
 			if (query == null)
 				return query;
@@ -226,7 +251,7 @@ namespace {dbSetClass.ContainingNamespace}
 			if (string.IsNullOrWhiteSpace(value))
 				return query;
 
-			return query.Where(n => n.{member.Name}.StartsWith(value));
+			return query.Where(n => n.{member.Name} != null && n.{member.Name}.StartsWith(value));
 		}}");
 
 				builder.AppendLine($@"
@@ -235,7 +260,7 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} ends with a value
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should end with</param>
-		public static IQueryable<{dbSetClass.Name}> By{member.Name}EndsWith(this IQueryable<{dbSetClass.Name}> query, {type}? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}EndsWith(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
 			if (query == null)
 				return query;
@@ -243,9 +268,8 @@ namespace {dbSetClass.ContainingNamespace}
 			if (string.IsNullOrWhiteSpace(value))
 				return query;
 
-			return query.Where(n => n.{member.Name}.EndsWith(value));
+			return query.Where(n => n.{member.Name} != null && n.{member.Name}.EndsWith(value));
 		}}");
-
 			}
 			else if (type.Equals(dateTimeSymbol, SymbolEqualityComparer.Default))
 			{
