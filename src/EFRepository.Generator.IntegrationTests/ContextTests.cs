@@ -23,39 +23,98 @@ namespace EFRepository.Generator.IntegrationTests
 				Created = now.AddHours(-i),
 				IsDeleted = i % 2 == 0,
 				Score = double.Parse($"{i}.{i}{i}{i}")
+			}).Union(new[]
+			{
+				new User
+				{
+					Id = 0,
+					Name = string.Empty,
+					Address = null,
+					Phone = " ",
+					Created = now.AddDays(-5),
+					IsDeleted = false,
+					Score = 9.2
+				}
 			});
 
 			var usersQueryable = users.AsQueryable();
 
-			var user = usersQueryable.ById(1).FirstOrDefault();
+			// Int/Long Functions
+			usersQueryable.ById(1).FirstOrDefault()
+				.ShouldNotBeNull()
+				.Id.ShouldBe(1);
 
-			user.ShouldNotBeNull();
-			user.Id.ShouldBe(1);
+			// Boolean Functions
+			usersQueryable.ByIsDeleted(false).FirstOrDefault()
+				.ShouldNotBeNull()
+				.IsDeleted.ShouldBeFalse();
 
-			user = usersQueryable.ByIsDeleted(false).FirstOrDefault();
+			// Double Functions
+			usersQueryable.ByScore(3.333).FirstOrDefault()
+				.ShouldNotBeNull()
+				.Score.ShouldBe(3.333);
 
-			user.ShouldNotBeNull();
-			user.IsDeleted.ShouldBeFalse();
+			// DateTime Functions
+			usersQueryable.ByCreatedIsAfter(now.AddHours(-5.5))
+				.ShouldNotBeNull()
+				.Count().ShouldBe(5);
 
-			user = usersQueryable.ByScore(3.333).FirstOrDefault();
+			usersQueryable.ByCreatedOnDate(now.AddDays(-5))
+				.ShouldNotBeNull()
+				.Count().ShouldBe(1);
 
-			user.ShouldNotBeNull();
-			user.Score.ShouldBe(3.333);
+			usersQueryable.ByCreatedIsBefore(now.AddHours(-5.5))
+				.ShouldNotBeNull()
+				.Count().ShouldBe(6);
 
-			var filteredUsers = usersQueryable.WhereCreatedIsAfter(now.AddHours(-5.5));
+			usersQueryable.ByCreatedBetween(start: now.AddHours(-5.5), end: now.AddHours(-2.5))
+				.ShouldNotBeNull()
+				.Count().ShouldBe(3);
 
-			filteredUsers.ShouldNotBeNull();
-			filteredUsers.Count().ShouldBe(5);
+			// String functions
+			usersQueryable.ByAddress("1 Fake St.")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(1);
 
-			filteredUsers = usersQueryable.WhereCreatedIsBefore(now.AddHours(-5.5));
+			usersQueryable.ByAddressIsNotNull()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(10);
 
-			filteredUsers.ShouldNotBeNull();
-			filteredUsers.Count().ShouldBe(5);
+			usersQueryable.ByAddressIsNull()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(1);
 
-			filteredUsers = usersQueryable.WhereCreatedIsBetween(start: now.AddHours(-5.5), end: now.AddHours(-2.5));
+			usersQueryable.ByNameIsNull()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(0);
 
-			filteredUsers.ShouldNotBeNull();
-			filteredUsers.Count().ShouldBe(3);
+			usersQueryable.ByNameIsNullOrWhiteSpace()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(1);
+
+			usersQueryable.ByPhoneIsNullOrWhiteSpace()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(1);
+
+			usersQueryable.ByAddressIsNullOrWhiteSpace()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(1);
+
+			usersQueryable.ByAddressIsNotNullOrWhiteSpace()
+				.ShouldNotBeNull()
+				.Count().ShouldBe(10);
+
+			usersQueryable.ByAddressStartsWith("1")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(2);
+
+			usersQueryable.ByAddressEndsWith("St.")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(10);
+
+			usersQueryable.ByAddressContains("Fake")
+				.ShouldNotBeNull()
+				.Count().ShouldBe(10);
 		}
 	}
 }

@@ -17,5 +17,6 @@ namespace EFRepository.Generator.IntegrationTests
 			Title = string.Empty;
 			Content = string.Empty;
 		}
+
 	}
 }
