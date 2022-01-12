@@ -44,12 +44,7 @@ public class ExtensionMethodGenerator : ISourceGenerator
 			if (sourceModel == null || sourceSymbol == null)
 				return null;
 
-			return new SourceRecord
-			{
-				Model = sourceModel,
-				Symbol = sourceSymbol,
-				Syntax = c
-			};
+			return new SourceRecord(sourceModel, sourceSymbol, c);
 		}).Where(c => c != null)
 		.Where(c =>
 			c != null &&
@@ -67,33 +62,32 @@ public class ExtensionMethodGenerator : ISourceGenerator
 		}
 	}
 
-	protected IEnumerable<(string FileName, string Content)> ProcessDbContext(SourceRecord record, INamedTypeSymbol dbSetSymbol, Compilation compilation)
+	protected IEnumerable<(string FileName, string Content)> ProcessDbContext(SourceRecord? record, INamedTypeSymbol dbSetSymbol, Compilation compilation)
 	{
-		var dbSets = record.Symbol.GetMembers()
-		.Where(m => !m.IsStatic && !m.IsAbstract && !m.IsImplicitlyDeclared
-					&& m.Kind is SymbolKind.Property && m.IsDefinition)
-		.Cast<IPropertySymbol>()
-		.Where(p => !p.IsReadOnly && !p.IsExtern)
-		.Where(p =>
+		if (record != null)
 		{
-			return p.Type.OriginalDefinition.Equals(dbSetSymbol, SymbolEqualityComparer.Default);
-		});
+			var dbSets = record.Symbol.GetMembers()
+			.Where(m => !m.IsStatic && !m.IsAbstract && !m.IsImplicitlyDeclared
+						&& m.Kind is SymbolKind.Property && m.IsDefinition)
+			.Cast<IPropertySymbol>()
+			.Where(p => !p.IsReadOnly && !p.IsExtern)
+			.Where(p =>
+			{
+				return p.Type.OriginalDefinition.Equals(dbSetSymbol, SymbolEqualityComparer.Default);
+			});
 
-		var list = new List<(string FileName, string Content)>();
+			foreach (var dbSet in dbSets)
+			{
+				var genericType = ((INamedTypeSymbol)dbSet.Type).TypeArguments[0];
 
-		foreach (var dbSet in dbSets)
-		{
-			var genericType = ((INamedTypeSymbol)dbSet.Type).TypeArguments[0];
+				if (genericType == null)
+					continue;
 
-			if (genericType == null)
-				continue;
+				var sourceCode = BuildExtensionMethod((INamedTypeSymbol)genericType, compilation);
 
-			var sourceCode = BuildExtensionMethod((INamedTypeSymbol)genericType, compilation);
-
-			list.Add(sourceCode);
+				yield return sourceCode;
+			}
 		}
-
-		return list;
 	}
 
 	protected (string FileName, string Content) BuildExtensionMethod(INamedTypeSymbol dbSetClass, Compilation compilation)
@@ -187,11 +181,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} is null
 		/// </summary>
-		public static IQueryable<{dbSetClass.Name}>? By{member.Name}IsNullOrWhiteSpace(this IQueryable<{dbSetClass.Name}>? query)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}IsNullOrWhiteSpace(this IQueryable<{dbSetClass.Name}> query)
 		{{
-			if (query == null)
-				return query;
-
 			return query.Where(n => string.IsNullOrWhiteSpace(n.{member.Name}));
 		}}
 
@@ -200,9 +191,6 @@ namespace {dbSetClass.ContainingNamespace}
 		/// </summary>
 		public static IQueryable<{dbSetClass.Name}> By{member.Name}IsNotNullOrWhiteSpace(this IQueryable<{dbSetClass.Name}> query)
 		{{
-			if (query == null)
-				return query;
-
 			return query.Where(n => !string.IsNullOrWhiteSpace(n.{member.Name}));
 		}}");
 
@@ -211,11 +199,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name}
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should be equal</param>
-		public static IQueryable<{dbSetClass.Name}>? By{member.Name}(this IQueryable<{dbSetClass.Name}>? query, string? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (string.IsNullOrWhiteSpace(value))
 				return query;
 
@@ -227,11 +212,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} contains a value
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should contain</param>
-		public static IQueryable<{dbSetClass.Name}>? By{member.Name}Contains(this IQueryable<{dbSetClass.Name}>? query, string? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}Contains(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (string.IsNullOrWhiteSpace(value))
 				return query;
 
@@ -243,11 +225,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} starts with a value
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should start with</param>
-		public static IQueryable<{dbSetClass.Name}>? By{member.Name}StartsWith(this IQueryable<{dbSetClass.Name}>? query, string? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}StartsWith(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (string.IsNullOrWhiteSpace(value))
 				return query;
 
@@ -260,11 +239,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {member.Name} ends with a value
 		/// </summary>
 		/// <param name=""value"">The string which {member.Name} should end with</param>
-		public static IQueryable<{dbSetClass.Name}>? By{member.Name}EndsWith(this IQueryable<{dbSetClass.Name}>? query, string? value)
+		public static IQueryable<{dbSetClass.Name}> By{member.Name}EndsWith(this IQueryable<{dbSetClass.Name}> query, string? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (string.IsNullOrWhiteSpace(value))
 				return query;
 
@@ -280,11 +256,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is after {member.Name}
 		/// </summary>
 		/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be before</param>
-		public static IQueryable<{dbSetClass}>? By{member.Name}IsBefore(this IQueryable<{dbSetClass.Name}>? query, DateTime? value)
+		public static IQueryable<{dbSetClass}> By{member.Name}IsBefore(this IQueryable<{dbSetClass.Name}> query, DateTime? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (value == null)
 				return query;
 
@@ -296,11 +269,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""DateTime"" /> is after {member.Name}
 		/// </summary>
 		/// <param name=""value"">The <see cref=""DateTime""/> that {member.Name} should be after</param>
-		public static IQueryable<{dbSetClass}>? By{member.Name}IsAfter(this IQueryable<{dbSetClass.Name}>? query, DateTime? value)
+		public static IQueryable<{dbSetClass}> By{member.Name}IsAfter(this IQueryable<{dbSetClass.Name}> query, DateTime? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (value == null)
 				return query;
 
@@ -313,11 +283,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// </summary>
 		/// <param name=""start"">The <see cref=""DateTime""/> that should be before {member.Name}</param>
 		/// <param name=""end"">The <see cref=""DateTime""/> that should be after {member.Name}</param>
-		public static IQueryable<{dbSetClass}>? By{member.Name}Between(this IQueryable<{dbSetClass.Name}>? query, DateTime? start, DateTime? end)
+		public static IQueryable<{dbSetClass}> By{member.Name}Between(this IQueryable<{dbSetClass.Name}> query, DateTime? start, DateTime? end)
 		{{
-			if (query == null)
-				return query;
-
 			if (start != null)
 				query = query.Where(n => n.{member.Name} > start);
 
@@ -332,11 +299,8 @@ namespace {dbSetClass.ContainingNamespace}
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
 		/// </summary>
 		/// <param name=""value"">The <see cref=""DateTime""/> that should the same date as {member.Name}, excluding time</param>
-		public static IQueryable<{dbSetClass}>? By{member.Name}OnDate(this IQueryable<{dbSetClass.Name}>? query, DateTime? value)
+		public static IQueryable<{dbSetClass}> By{member.Name}OnDate(this IQueryable<{dbSetClass.Name}> query, DateTime? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (value != null)
 				return query.Where(n => n.{member.Name}.Date == value.Value.Date);
 			else
@@ -360,9 +324,6 @@ namespace {dbSetClass.ContainingNamespace}
 		/// <param name=""value"">The {type} which should equal {memberName}</param>
 		public static IQueryable<{dbSetClass.Name}> By{memberName}(this IQueryable<{dbSetClass.Name}> query, {type}? value)
 		{{
-			if (query == null)
-				return query;
-
 			if (value == null)
 				return query;
 
@@ -383,22 +344,16 @@ namespace {dbSetClass.ContainingNamespace}
 		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName} is null
 		/// </summary>
-		public static IQueryable<{dbSetClass.Name}>? By{memberName}IsNull(this IQueryable<{dbSetClass.Name}>? query)
+		public static IQueryable<{dbSetClass.Name}> By{memberName}IsNull(this IQueryable<{dbSetClass.Name}> query)
 		{{
-			if (query == null)
-				return query;
-
 			return query.Where(n => n.{memberName} == null);
 		}}
 
 		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by {memberName} is not null
 		/// </summary>
-		public static IQueryable<{dbSetClass.Name}>? By{memberName}IsNotNull(this IQueryable<{dbSetClass.Name}>? query)
+		public static IQueryable<{dbSetClass.Name}> By{memberName}IsNotNull(this IQueryable<{dbSetClass.Name}> query)
 		{{
-			if (query == null)
-				return query;
-
 			return query.Where(n => n.{memberName} != null);
 		}}";
 		}
@@ -410,4 +365,11 @@ public record SourceRecord
 	public SemanticModel Model { get; init; }
 	public INamedTypeSymbol Symbol { get; init; }
 	public TypeDeclarationSyntax Syntax { get; init; }
+
+	public SourceRecord(SemanticModel model, INamedTypeSymbol symbol, TypeDeclarationSyntax syntax)
+	{
+		Model = model;
+		Symbol = symbol;
+		Syntax = syntax;
+	}
 }
