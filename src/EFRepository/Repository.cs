@@ -119,14 +119,7 @@ namespace EFRepository
 			return DataContext.SaveChanges();
 		}
 
-		public virtual Task<int> SaveAsync()
-		{
-			CheckDetectChanges();
-
-			return DataContext.SaveChangesAsync();
-		}
-
-		public virtual Task<int> SaveAsync(CancellationToken cancellationToken)
+		public virtual Task<int> SaveAsync(CancellationToken cancellationToken = default)
 		{
 			CheckDetectChanges();
 

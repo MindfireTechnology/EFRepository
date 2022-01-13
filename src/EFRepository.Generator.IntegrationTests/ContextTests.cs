@@ -44,6 +44,18 @@ namespace EFRepository.Generator.IntegrationTests
 				.ShouldNotBeNull()
 				.Id.ShouldBe(1);
 
+			usersQueryable.ByIdGreaterThan(5)
+				.Count().ShouldBe(5);
+
+			usersQueryable.ByIdGreaterThanOrEqual(5)
+				.Count().ShouldBe(6);
+
+			usersQueryable.ByIdLessThan(5)
+				.Count().ShouldBe(5);
+
+			usersQueryable.ByIdLessThanOrEqual(5)
+				.Count().ShouldBe(6);
+
 			// Boolean Functions
 			usersQueryable.ByIsDeleted(false).FirstOrDefault()
 				.ShouldNotBeNull()
@@ -67,16 +79,16 @@ namespace EFRepository.Generator.IntegrationTests
 			usersQueryable.ByCreatedBetween(start: now.AddHours(-5.5), end: now.AddHours(-2.5))
 				.Count().ShouldBe(3);
 
-			// String functions
-			usersQueryable.ByAddress("1 Fake St.")
-				.Count().ShouldBe(1);
+			usersQueryable.ByRegistrationDateOnDate(now.AddDays(-5))
+				.Count().ShouldBe(0);
 
+			// String functions
 			usersQueryable.ByAddress("1 Fake St.")
 				.Count().ShouldBe(1);
 
 			usersQueryable.ByAddressIsNotNull()
 				.ByAddressStartsWith("1")
-				.Count().ShouldBe(10);
+				.Count().ShouldBe(2);
 
 			usersQueryable.ByAddressIsNull()
 				.Count().ShouldBe(1);
@@ -110,7 +122,8 @@ namespace EFRepository.Generator.IntegrationTests
 				.ByAddressIsNotNull()
 				.ByNameIsNotNull()
 				.ByPhoneContains("801")
-				.ByPhone("201-111-0221")
+				.ByScoreGreaterThan(1)
+				.ByScoreLessThan(100)
 				.Count().ShouldBe(0);
 
 		}
