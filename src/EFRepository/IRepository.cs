@@ -8,12 +8,10 @@ using System.Threading.Tasks;
 namespace EFRepository
 {
 	/// <summary>
-	/// Interface for interacting with data storage through the repository pattern
+	/// Interface for interacting with data storage through a queryable repository pattern
 	/// </summary>
-	/// <typeparam name="TEntity"></typeparam>
 	public interface IRepository : IDisposable
 	{
-
 		/// <summary>Event that fires when an item is added</summary>
 		event Action<object> ItemAdding;
 
@@ -22,7 +20,6 @@ namespace EFRepository
 
 		/// <summary>Event that fires when an item is deleted</summary>
 		event Action<object> ItemDeleting;
-
 
 		/// <summary>Queriable Entity</summary>
 		IQueryable<TEntity> Query<TEntity>() where TEntity : class, new();
@@ -88,15 +85,9 @@ namespace EFRepository
 		int Save();
 
 		/// <summary>
-		/// Save pending changes for the collection async
-		/// </summary>
-		/// <returns>Number of affected entities</returns>
-		Task<int> SaveAsync();
-
-		/// <summary>
 		/// Save pending changes for the collection async with cancellation
 		/// </summary>
-		/// <param name="cancellationToken">Cancelation Token</param>
+		/// <param name="cancellationToken">Cancellation Token</param>
 		/// <returns>Number of affected entities</returns>
 		Task<int> SaveAsync(CancellationToken cancellationToken = default);
 	}

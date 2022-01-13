@@ -1,0 +1,14 @@
+## Future Goals
+ - Better handling of client-provided ID's
+	- What is the expected behavior for AddOrUpdate on a new Client side generated ID?
+	- Add an attribute?
+ - Better support for Transactions
+	- Test to see if we're inside of a transaction?
+	- If the transaction is already in progress, then throw on BeginTrans
+	- Commit or Rollback or throw on dispose?
+ - Concurrency
+ - AddOrUpdate with a New object that uses an existing object as a relation
+	- If you're not using lazy loading, a simple recursive add
+	- If you are using lazy loading, then it's your responsibility?
+- Soft Deletes
+- Better support for Eager, Explicit, and Lazy Loading

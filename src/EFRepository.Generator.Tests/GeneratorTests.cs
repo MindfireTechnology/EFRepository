@@ -25,7 +25,7 @@ namespace EFRepository.Generator.Tests
 			diagnostics.IsDefaultOrEmpty.ShouldBeTrue();
 			var outputDiag = outputCompilation.GetDiagnostics();
 
-			var allClasses = outputCompilation.SyntaxTrees.Where(st => st.FilePath.EndsWith(".EFExtensions.g.cs"));
+			var allClasses = outputCompilation.SyntaxTrees.Where(st => st.FilePath.EndsWith(".EFRepoExtensions.g.cs"));
 
 			allClasses.ShouldNotBeNull("No classes were generated");
 

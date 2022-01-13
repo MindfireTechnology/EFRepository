@@ -44,6 +44,18 @@ namespace EFRepository.Generator.IntegrationTests
 				.ShouldNotBeNull()
 				.Id.ShouldBe(1);
 
+			usersQueryable.ByIdGreaterThan(5)
+				.Count().ShouldBe(5);
+
+			usersQueryable.ByIdGreaterThanOrEqual(5)
+				.Count().ShouldBe(6);
+
+			usersQueryable.ByIdLessThan(5)
+				.Count().ShouldBe(5);
+
+			usersQueryable.ByIdLessThanOrEqual(5)
+				.Count().ShouldBe(6);
+
 			// Boolean Functions
 			usersQueryable.ByIsDeleted(false).FirstOrDefault()
 				.ShouldNotBeNull()
@@ -56,65 +68,64 @@ namespace EFRepository.Generator.IntegrationTests
 
 			// DateTime Functions
 			usersQueryable.ByCreatedIsAfter(now.AddHours(-5.5))
-				.ShouldNotBeNull()
 				.Count().ShouldBe(5);
 
 			usersQueryable.ByCreatedOnDate(now.AddDays(-5))
-				.ShouldNotBeNull()
 				.Count().ShouldBe(1);
 
 			usersQueryable.ByCreatedIsBefore(now.AddHours(-5.5))
-				.ShouldNotBeNull()
 				.Count().ShouldBe(6);
 
 			usersQueryable.ByCreatedBetween(start: now.AddHours(-5.5), end: now.AddHours(-2.5))
-				.ShouldNotBeNull()
 				.Count().ShouldBe(3);
+
+			usersQueryable.ByRegistrationDateOnDate(now.AddDays(-5))
+				.Count().ShouldBe(0);
 
 			// String functions
 			usersQueryable.ByAddress("1 Fake St.")
-				.ShouldNotBeNull()
 				.Count().ShouldBe(1);
 
 			usersQueryable.ByAddressIsNotNull()
-				.ShouldNotBeNull()
-				.Count().ShouldBe(10);
+				.ByAddressStartsWith("1")
+				.Count().ShouldBe(2);
 
 			usersQueryable.ByAddressIsNull()
-				.ShouldNotBeNull()
 				.Count().ShouldBe(1);
 
 			usersQueryable.ByNameIsNull()
-				.ShouldNotBeNull()
 				.Count().ShouldBe(0);
 
 			usersQueryable.ByNameIsNullOrWhiteSpace()
-				.ShouldNotBeNull()
 				.Count().ShouldBe(1);
 
 			usersQueryable.ByPhoneIsNullOrWhiteSpace()
-				.ShouldNotBeNull()
 				.Count().ShouldBe(1);
 
 			usersQueryable.ByAddressIsNullOrWhiteSpace()
-				.ShouldNotBeNull()
 				.Count().ShouldBe(1);
 
 			usersQueryable.ByAddressIsNotNullOrWhiteSpace()
-				.ShouldNotBeNull()
 				.Count().ShouldBe(10);
 
 			usersQueryable.ByAddressStartsWith("1")
-				.ShouldNotBeNull()
 				.Count().ShouldBe(2);
 
 			usersQueryable.ByAddressEndsWith("St.")
-				.ShouldNotBeNull()
 				.Count().ShouldBe(10);
 
 			usersQueryable.ByAddressContains("Fake")
-				.ShouldNotBeNull()
 				.Count().ShouldBe(10);
+
+			// Testing chained functions
+			usersQueryable.ByAddress("1 Fake St.")
+				.ByAddressIsNotNull()
+				.ByNameIsNotNull()
+				.ByPhoneContains("801")
+				.ByScoreGreaterThan(1)
+				.ByScoreLessThan(100)
+				.Count().ShouldBe(0);
+
 		}
 	}
 }
