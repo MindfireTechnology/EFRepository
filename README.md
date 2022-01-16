@@ -15,7 +15,7 @@ var query = Repo.Query<Users>()
  * C# 10 `nullable` compatible code is generated
  * Automatic Update / Insert detection with `.AddOrUpdate`
  * Force Adding of New Object with `.AddNew(object)`
- * FineOne to find objects by key. Will even work with composite keys
+ * FindOne to find objects by key. Will even work with composite keys
  * Events for objects being added or modified or deleted
  * `async` and synchronous methods provided where possible. Chaining to LINQ's async methods is strongly advised (like `.CountAsync()`).
 
