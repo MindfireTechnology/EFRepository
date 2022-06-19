@@ -44,6 +44,11 @@ public record Order
 	public string? OrderOrigination { get; set; }
 	public DateTimeOffset RegistrationDate { get; set; }
 	public DateTimeOffset? TokenExpirationDate { get; set; }
+	public DateOnly ActiveDate { get; set; }
+	public DateOnly? ExpiryDate { get; set; }
+	public TimeOnly ValidTime { get; set; }
+	public TimeOnly? ExpiryTime { get; set; }
+
 
 	public virtual ICollection<OrderItem> Items { get; set; }
 

@@ -120,9 +120,12 @@ namespace {dbSetClass.ContainingNamespace}
 		var stringSymbol = compilation.GetTypeByMetadataName("System.String");
 		var dateTimeSymbol = compilation.GetTypeByMetadataName("System.DateTime");
 		var dateTimeOffsetSymbol = compilation.GetTypeByMetadataName("System.DateTimeOffset");
+		var dateOnlySymbol = compilation.GetTypeByMetadataName("System.DateOnly");
+		var timeOnlySymbol = compilation.GetTypeByMetadataName("System.TimeOnly");
 
 		var valueTypes = new[] { boolSymbol, byteSymbol, shortSymbol, intSymbol, longSymbol,
-			floatSymbol, doubleSymbol, decimalSymbol, dateTimeSymbol, dateTimeOffsetSymbol };
+			floatSymbol, doubleSymbol, decimalSymbol, dateTimeSymbol, dateTimeOffsetSymbol,
+			dateOnlySymbol, timeOnlySymbol };
 
 		var members = dbSetClass.GetMembers()
 		.Where((m) => !m.IsStatic && !m.IsAbstract && !m.IsImplicitlyDeclared && m.IsDefinition
@@ -288,13 +291,27 @@ namespace {dbSetClass.ContainingNamespace}
 		}}");
 			}
 			else if (type.Equals(dateTimeSymbol, SymbolEqualityComparer.Default) ||
-				type.Equals(dateTimeOffsetSymbol, SymbolEqualityComparer.Default))
+				type.Equals(dateTimeOffsetSymbol, SymbolEqualityComparer.Default) ||
+				type.Equals(dateOnlySymbol, SymbolEqualityComparer.Default) ||
+				type.Equals(timeOnlySymbol, SymbolEqualityComparer.Default))
 			{
-				string dateType = type.Equals(dateTimeSymbol, SymbolEqualityComparer.Default) ?
-					"DateTime" : "DateTimeOffset";
+				string dateType;
 
+				if (type.Equals(dateTimeSymbol, SymbolEqualityComparer.Default))
+					dateType = "DateTime";
+				else if (type.Equals(dateTimeOffsetSymbol, SymbolEqualityComparer.Default))
+					dateType = "DateTimeOffset";
+				else if (type.Equals(dateOnlySymbol, SymbolEqualityComparer.Default))
+					dateType = "DateOnly";
+				else if (type.Equals(timeOnlySymbol, SymbolEqualityComparer.Default))
+					dateType = "TimeOnly";
+				else
+					continue;
+
+				// By (is)
 				builder.AppendLine(CreateMethod(dateType, member.Name, nullable));
 
+				// IsBefore
 				builder.AppendLine($@"
 		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""{dateType}"" /> is after {member.Name}
@@ -311,6 +328,7 @@ namespace {dbSetClass.ContainingNamespace}
 			return query.Where(n => n.{member.Name} < value);
 		}}");
 
+				// IsAfter
 				builder.AppendLine($@"
 		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not the provided <see cref=""{dateType}"" /> is after {member.Name}
@@ -327,6 +345,7 @@ namespace {dbSetClass.ContainingNamespace}
 			return query.Where(n => n.{member.Name} > value);
 		}}");
 
+				// Between
 				builder.AppendLine($@"
 		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
@@ -347,7 +366,9 @@ namespace {dbSetClass.ContainingNamespace}
 			return query;
 		}}");
 
-				builder.AppendLine($@"
+				// OnDate (Skip for DateOnly and TimeOnly types)
+				if (dateType != "DateOnly" && dateType != "TimeOnly")
+					builder.AppendLine($@"
 		/// <summary>
 		/// Filter the <see cref=""IQueryable""/> of {dbSetClass.Name} by whether or not {member.Name} is between the two provided values.
 		/// </summary>
@@ -358,7 +379,7 @@ namespace {dbSetClass.ContainingNamespace}
 			if (query == null) throw new ArgumentNullException(nameof(query));
 
 			if (value != null)
-				return query.Where(n => n.{member.Name}.Date == value.Value.Date);
+				return query.Where(n => n.{member.Name}{(nullable ? ".GetValueOrDefault()" : "")}.Date == value.Value.Date);
 			else
 				return query;
 		}}");

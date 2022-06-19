@@ -35,11 +35,15 @@ namespace EFRepository.Generator.Tests
 		}
 
 		protected static Compilation CreateCompilation(string source)
-			=> CSharpCompilation.Create("compilation",
+		{
+			return CSharpCompilation.Create("compilation",
 				new[] { CSharpSyntaxTree.ParseText(source) },
-				new[]
-				{
+				new[] {
+					MetadataReference.CreateFromFile(typeof(object).GetTypeInfo().Assembly.Location),
 					MetadataReference.CreateFromFile(typeof(DateTime).GetTypeInfo().Assembly.Location),
+					MetadataReference.CreateFromFile(typeof(DateTimeOffset).GetTypeInfo().Assembly.Location),
+					MetadataReference.CreateFromFile(typeof(DateOnly).GetTypeInfo().Assembly.Location),
+					MetadataReference.CreateFromFile(typeof(TimeOnly).GetTypeInfo().Assembly.Location),
 					MetadataReference.CreateFromFile(typeof(Binder).GetTypeInfo().Assembly.Location),
 					MetadataReference.CreateFromFile(typeof(Attribute).GetTypeInfo().Assembly.Location),
 					MetadataReference.CreateFromFile(typeof(System.ComponentModel.INotifyPropertyChanged).GetTypeInfo().Assembly.Location),
@@ -48,5 +52,6 @@ namespace EFRepository.Generator.Tests
 					MetadataReference.CreateFromFile(typeof(DbSet<>).GetTypeInfo().Assembly.Location),
 				},
 				new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+		}
 	}
 }
