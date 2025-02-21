@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\EFRepository-Core-3_0\EFRepository-Core-3_0.csproj" />
+    <ProjectReference Include="..\EFRepository\EFRepository.csproj" />
   </ItemGroup>
 
 </Project>
